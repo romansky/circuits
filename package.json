@@ -1,0 +1,32 @@
+{
+    "name" : "circuit",
+    "version" : "0.0.1",
+    "description" : "Real-Time Backend - Minimalistic Style",
+    "main" : "./index.js",
+    "keywords" : [
+        "realtime", "real-time", "socket.io"
+    ],
+    "repository" : {
+        "type" : "git",
+        "url" : "https://github.com/romansky/circuit"
+    },
+    "dependencies" : {
+        "node-logr" : ">= 0.0.4",
+	"redis" : "latest" 
+    },
+    "devDependencies" : {
+	   "jasmine-node": ">= 1.0.26",
+	   "coffee-script": "latest"
+    },
+    "scripts" : {
+	"test": "cake test"
+    },
+    "engine" : {"node" : ">=0.8.0"},
+    "author" : {
+        "name" : "Roman Landenband",
+        "email" : "roman.land@gmail.com",
+        "url" : "www.romansky.me"
+    }
+}
+
+
