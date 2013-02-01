@@ -14,9 +14,13 @@ exports.Config = class Config
 
 
 testConfig = {
+	preset : Config.preset.TEST
 	redis : {
 		db : 15
 		host : "127.0.0.1"
 		port : "6379"
+	},
+	server : {
+		port : 7474
 	}
 }

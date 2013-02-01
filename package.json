@@ -12,7 +12,10 @@
     },
     "dependencies" : {
         "node-logr" : ">= 0.0.4",
-	"redis" : "latest" 
+	"redis" : "latest",
+	"node-acl" : "0.0.2",
+	"socket.io-client" : "0.9.11",
+	"socket.io" : "0.9.13"
     },
     "devDependencies" : {
 	   "jasmine-node": ">= 1.0.26",

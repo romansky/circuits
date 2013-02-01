@@ -1,0 +1,4 @@
+exports.Messages = {
+	"Register"
+	"Operation"
+}

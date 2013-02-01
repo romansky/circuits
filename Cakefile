@@ -10,4 +10,4 @@ task 'build',->
 	exec "coffee -c index", handleExecErrors
 
 task 'test',->
-	exec "node_modules/jasmine-node/bin/jasmine-node --verbose --color --coffee ./specs" , handleExecErrors
+	exec "node_modules/jasmine-node/bin/jasmine-node --verbose --forceexit --color --coffee ./specs" , handleExecErrors
