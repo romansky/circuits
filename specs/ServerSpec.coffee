@@ -2,7 +2,8 @@
 {Server} = require '../lib/Server'
 {Config} = require '../lib/Config'
 {CRUD} = require 'node-acl'
-{Messages} = require '../lib/Messages'
+{Services,Messages} = require '../lib/Services'
+{Tester} = require './controller/Tester'
 
 sioc = require 'socket.io-client'
 
@@ -36,15 +37,20 @@ describe "Server Specs",->
 		server.onPulishReady ()->
 			server.publishEvent "some event"
 
-	it "allows clients to send registeration request",->
+	it "registers request recieved and intercepted by services",->
 		asyncSpecWait()
 		acl = [ role : "public", model: "tester", crudOps : [CRUD.read] ]
+		testObj = { a: "a", b: "b" }
+		spy = spyOn(Services, Messages.Register).andCallFake (a,b,c,d,cb)-> 
+			cb(null, testObj)
 		server = getServerInstance()
 		client = getClientInstance()
 		client.on 'connect', ->
-			client.emit Messages.Register, "tester", [CRUD.read], 1, (err)->
-				expect(err).toBeNull()
+			client.emit Messages.Register, "tester", [CRUD.read], 1, (err, data)->
+				expect(data).toEqual(testObj)
 				asyncSpecDone()
+
+
 
 	xit "allows creating express server"
 	xit "cleans up after disconnection of a client"

@@ -1,5 +1,5 @@
 {RedisClient} = require './RedisClient'
-{Messages} = require './Messages'
+{Services,Messages} = require './Services'
 {Config} = require './Config'
 sio = require 'socket.io'
 
@@ -44,7 +44,7 @@ exports.Server = class Server
 		# disconnect all clients
 		@connectedSockets.map (s)->
 			s.disconnect()
-			logr.debug "disconnecting socket #{s.id}"
+			logr.info "disconnecting socket #{s.id}"
 		# shutdown socket io
 		@sio.server.close()
 
@@ -73,10 +73,14 @@ exports.Server = class Server
 			#creates personal room for this socket
 			socket.join(socket.id)
 			# print out some debug info
-			clientAddress = socket.handshake.address.address + ":" + socket.handshake.address.port
-			logr.debug "client connecting:#{socket.id} ip:#{clientAddress}"
-			socket.on Messages.Register, (entityName, crudOps, entityId, callback)=>
-				callback(null)
+			socket.clientAddress = socket.handshake.address.address + ":" + socket.handshake.address.port
+			logr.info "client connecting:#{socket.id} ip:#{socket.clientAddress}"
+			bindMessage = (message)=>
+				socket.on message, (args...)=>
+					Services[message](@,args...)
+			bindMessage(message) for message of Messages
+
 			socket.on "disconnect",=>
-				logr.info "client disconnecting:#{socket.id} ip:{clientAddress}"
+				logr.info "client disconnecting:#{socket.id} ip:#{socket.clientAddress}"
+
 
