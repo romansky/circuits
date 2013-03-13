@@ -1,4 +1,4 @@
-circuit [![Build Status](https://travis-ci.org/romansky/circuit.png)](https://travis-ci.org/romansky/circuit)
+circuits [![Build Status](https://travis-ci.org/romansky/circuits.png)](https://travis-ci.org/romansky/circuits)
 ====
 
 Minimalistic Real-Time Backend For Node.js
@@ -12,4 +12,4 @@ High Level Design
 	
 ## Installation
 
-	npm install circuit
+	npm install circuits

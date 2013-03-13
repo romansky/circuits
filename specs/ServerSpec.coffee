@@ -7,21 +7,24 @@
 
 sioc = require 'socket.io-client'
 
+flatCopy = (target,sources)-> target[k] = v for k,v of sources ; target
+
 __config = Config.get Config.preset.TEST
 __server = null
-getServerInstance = ()->
+getServerInstance = (configToMerge)->
 	# if _server then _server.
+	tmpConf = flatCopy({}, configToMerge)
 	__server = new Server __config
 
 __client = null
 getClientInstance = ()->
-	__client = sioc.connect( "http://127.0.0.1", { 'port': __config.server.port , 'reconnect': false, 'force new connection': true})
+	__client = sioc.connect( "http://127.0.0.1", { 'port': __config.server_port , 'reconnect': false, 'force new connection': true})
 
 describe "Server Specs",->
 
 	beforeEach ->
 		console.log "==========running new test=========="
-		RedisClient.get(__config).flushdb()
+		RedisClient.get(__config.redis_db, __config.redis_host, __config.redis_port).flushdb()
 
 	afterEach ->
 		RedisClient.destroy(true)
@@ -50,6 +53,19 @@ describe "Server Specs",->
 				expect(data).toEqual(testObj)
 				asyncSpecDone()
 
+	it "recieves configuration of controllers folder and dispatches message to specified model",->
+		asyncSpecWait()
+		acl = [ role : "public", model: "Tester", crudOps : [CRUD.read] ]
+		testObj = { a: "a", b: "b" }
+		spy = spyOn(Tester, "read").andCallFake (id, cb)-> 
+			expect(id).toEqual(42)
+			cb(null, testObj)
+		server = getServerInstance()
+		client = getClientInstance()
+		client.on 'connect', ->
+			client.emit Messages.Register, "Tester", [CRUD.read], 42, (err, data)->
+				expect(data).toEqual(testObj)
+				asyncSpecDone()
 
 
 	xit "allows creating express server"

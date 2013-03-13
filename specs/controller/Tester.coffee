@@ -1,6 +1,6 @@
-exports.Testing = class Testing 
+exports.Tester = class Tester 
 	
-	create : ()->
-	read : ()->
-	update : ()->
-	delete : ()->
+	@create : ()->
+	@read : ()->
+	@update : ()->
+	@delete : ()->

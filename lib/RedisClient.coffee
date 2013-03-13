@@ -8,11 +8,14 @@ exports.RedisClient = class RedisClient
 
 	@_auxClients : []
 
-	### @param { db: null, host: null, port: null } config ###
+	### @param Int db - the redis db identifier ###
+	### @param String host - the ip address of the redis host ### 
+	### @param Int port - the port number on which the redis instance is listening on ### 
 	### @param bool isAux - create auxiliary client (for pub/sub for example) ###
-	@get : (config, isAux = false)->
+	@get : (db, host, port, isAux = false)->
 		if not RedisClient._instance || isAux
-			instance = createNewClient(config)
+
+			instance = createNewClient(db, host, port)
 			if isAux
 				RedisClient._auxClients.push instance
 				return instance
@@ -30,10 +33,10 @@ exports.RedisClient = class RedisClient
 				c.quit()
 
 
-### @param { db: null, host: null, port: null } config ###
-createNewClient = (config)->
-	logr.info "creating redis client with config #{JSON.stringify(config)}"
-	instance = redis.createClient config.port, config.host
+
+createNewClient = (db, host, port)->
+	logr.info "creating redis client with args: #{db} #{host}:#{port}"
+	instance = redis.createClient port, host
 	instance.on 'error', (err)-> logr.error("redis client:#{err}")
-	instance.select config.db, ()-> #nothingness
+	instance.select db, ()-> #nothingness
 	return instance

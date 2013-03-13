@@ -28,8 +28,9 @@ exports.Server = class Server
 
 	constructor : (@config) ->
 		### Setup redis stuff ###
-		@redis = RedisClient.get(@config.redis)
-		@redisSub = RedisClient.get(@config.redis, true)
+		@redis = RedisClient.get(@config.redis_db, @config.redis_host, @config.redis_port)
+
+		@redisSub = RedisClient.get(@config.redis_db, @config.redis_host, @config.redis_port, true)
 		@_registerPubsub()
 		### Setup socket io stuff ###
 		@_setupSocketIO()
@@ -60,7 +61,7 @@ exports.Server = class Server
 	recieveEvent : (message)=>
 
 	_setupSocketIO : ()=>
-		@sio = sio.listen(@config.server.port)
+		@sio = sio.listen(@config.server_port)
 		@connectedSockets = []
 		switch @config.preset
 			when Config.preset.TEST
