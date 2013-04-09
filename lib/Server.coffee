@@ -1,15 +1,16 @@
 {RedisClient} = require './RedisClient'
 {Services,Messages} = require './Services'
 {Config} = require './Config'
-sio = require 'socket.io'
 
+sio = require 'socket.io'
 logr = require('node-logr').getLogger(__filename)
+path = require 'path'
 
 exports.Server = class Server
 
 	circuitChannel : "circuit-channel"
 
-	### @type { redis:{[redis options]}, } serverConfig ###
+	### @type Config serverConfig ###
 	config : null
 
 	### @type RedisClient ###
@@ -25,6 +26,8 @@ exports.Server = class Server
 
 	### @type List<Socket> ###
 	connectedSockets : null
+
+	### PUBLIC ###
 
 	constructor : (@config) ->
 		### Setup redis stuff ###
@@ -49,6 +52,22 @@ exports.Server = class Server
 		# shutdown socket io
 		@sio.server.close()
 
+
+	recieveEvent : (message)=>
+
+	###
+	get controller reference from one of the configured controller folders
+
+	@param String cn - controller name
+	###
+	getController : (cn)=>
+		cf = path.resolve __dirname, @config.user_controller || "./controller"
+		console.log @config.user_controller,"<<<<"
+		require("#{cf}/#{cn}")[cn]
+
+
+	### PRIVATE ###
+
 	_registerPubsub : =>
 		@redisSub.on "message", (channel, message)=>
 			if channel == @circuitChannel
@@ -58,7 +77,7 @@ exports.Server = class Server
 			while (cb = ( @publishReadyCBs || [] ).shift() )
 				cb()
 
-	recieveEvent : (message)=>
+	
 
 	_setupSocketIO : ()=>
 		@sio = sio.listen(@config.server_port)

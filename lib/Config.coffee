@@ -13,10 +13,10 @@ exports.Config = class Config
 				# write code here to resolve env and merge overrides
 
 
-testConfig = {
+testConfig = 
 	preset : Config.preset.TEST
 	redis_db : 15
 	redis_host : "127.0.0.1"
 	redis_port : "6379"
 	server_port : 7474
-}
+	user_controller : "./controller"

@@ -7,14 +7,17 @@
 
 sioc = require 'socket.io-client'
 
-flatCopy = (target,sources)-> target[k] = v for k,v of sources ; target
+tcf = require('path').resolve(__dirname,"./controller")
+
+flatCopy = (target,sources...)-> sources.reduce(((a,b)-> a[k] = v for k,v of b ; a ),target)
+
 
 __config = Config.get Config.preset.TEST
 __server = null
 getServerInstance = (configToMerge)->
 	# if _server then _server.
-	tmpConf = flatCopy({}, configToMerge)
-	__server = new Server __config
+	mergedConf = flatCopy({}, __config,configToMerge)
+	__server = new Server mergedConf
 
 __client = null
 getClientInstance = ()->
@@ -60,14 +63,17 @@ describe "Server Specs",->
 		spy = spyOn(Tester, "read").andCallFake (id, cb)-> 
 			expect(id).toEqual(42)
 			cb(null, testObj)
-		server = getServerInstance()
+
+		server = getServerInstance({user_controller : tcf})
+
 		client = getClientInstance()
 		client.on 'connect', ->
 			client.emit Messages.Register, "Tester", [CRUD.read], 42, (err, data)->
 				expect(data).toEqual(testObj)
 				asyncSpecDone()
 
-
+	xit "checks if the controller folder exists as configured during startup"
+	xit "checks if the passed controller file exists"
 	xit "allows creating express server"
 	xit "cleans up after disconnection of a client"
 

@@ -1,6 +1,6 @@
 exports.Tester = class Tester 
 	
 	@create : ()->
-	@read : ()->
+	@read : (id)->
 	@update : ()->
 	@delete : ()->
