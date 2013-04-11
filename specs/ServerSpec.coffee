@@ -64,13 +64,32 @@ describe "Server Specs",->
 			expect(id).toEqual(42)
 			cb(null, testObj)
 
-		server = getServerInstance({user_controller : tcf})
+		server = getServerInstance({user_controllers : tcf})
 
 		client = getClientInstance()
 		client.on 'connect', ->
 			client.emit Messages.Register, "Tester", [CRUD.read], 42, (err, data)->
 				expect(data).toEqual(testObj)
 				asyncSpecDone()
+
+
+	it "dispatches a read message to model",->
+		asyncSpecWait()
+		acl = [ role : "public", model: "Tester", crudOps : [CRUD.read] ]
+		testObj = { a: "a", b: "b" }
+		spy = spyOn(Tester, "read").andCallFake (id, cb)-> 
+			expect(id).toEqual(42)
+			cb(null, testObj)
+
+		server = getServerInstance({user_controllers : tcf})
+
+		client = getClientInstance()
+		client.on 'connect', ->
+			client.emit Messages.Operation, "Tester", [CRUD.read], 42, (err, data)->
+				expect(data).toEqual(testObj)
+				asyncSpecDone()
+
+
 
 	xit "checks if the controller folder exists as configured during startup"
 	xit "checks if the passed controller file exists"

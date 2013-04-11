@@ -61,8 +61,8 @@ exports.Server = class Server
 	@param String cn - controller name
 	###
 	getController : (cn)=>
-		cf = path.resolve __dirname, @config.user_controller || "./controller"
-		console.log @config.user_controller,"<<<<"
+		cf = path.resolve __dirname, @config.user_controllers || "./controller"
+		console.log @config.user_controllers,"<<<<"
 		require("#{cf}/#{cn}")[cn]
 
 
