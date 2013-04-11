@@ -2,6 +2,7 @@
 
 exports.Messages = {
 	"Register"
+	"UnRegister"
 	"Operation"
 	"Publish"
 }
@@ -21,7 +22,7 @@ exports.Services = {
 		# currently we support only one crud operation per register request
 		crudOp = crudOps[0]
 		switch crudOp
-			when CRUD.read 
+			when CRUD.update
 				C.read(entityId, callback)
 				# implement client registration queue
 				server.listeners.add(clientId,entityName, crudOps, entityId)

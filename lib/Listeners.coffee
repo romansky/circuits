@@ -1,5 +1,7 @@
 {CRUD} = require 'node-acl'
 
+logr = require('node-logr').getLogger(__filename)
+
 exports.Listeners = class Listeners
 
 	listeners : null
@@ -19,10 +21,12 @@ exports.Listeners = class Listeners
 	add : (id, entityName, crudOps, entityId)=>
 		allowed = [CRUD.update, CRUD.delete, CRUD.create, CRUD.patch]
 		if crudOps.filter((co)-> allowed.indexOf(co) == -1).length > 0
+			logr.notice "client #{id} triend to register crudOps:#{crudOps.toString()} entity:#{entityName} eId:#{entityId}"
 			return false
-		@listeners[entityName] ?= {}
+
+		@listeners[ entityName ] ?= {}
 		for co in crudOps
-			@idToListeners[id] ?= []
+			@idToListeners[ id ] ?= []
 			if not @idToListeners[id].some((x)-> simpleCompareArrs(x, [entityName,co,entityId]) )
 				@listeners[entityName][co] ?= {}
 				@listeners[entityName][co][entityId] ?= []

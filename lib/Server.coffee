@@ -74,9 +74,9 @@ exports.Server = class Server
 	### PRIVATE ###
 
 	_recieveEvent : (entityName, crudOp, entityId, data)=>
-		console.log "=="
-		process.exit()
-		console.log m
+		clients = @listeners.getList(entityName, crudOp, entityId)
+		clients.forEach((c)=> @sio.sockets.in(c).emit(Messages.Publish, entityName, crudOp, entityId, data ) )
+		
 
 	_registerPubsub : =>
 		@redisSub.on "message", (channel, message)=>
@@ -87,8 +87,6 @@ exports.Server = class Server
 		@redisSub.on "subscribe", =>
 			while (cb = ( @publishReadyCBs || [] ).shift() )
 				cb()
-
-	
 
 	_setupSocketIO : ()=>
 		@sio = sio.listen(@config.server_port)
