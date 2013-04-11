@@ -38,8 +38,9 @@ exports.Server = class Server
 		### Setup socket io stuff ###
 		@_setupSocketIO()
 
-	publishEvent : (text)=>
-		@redis.publish @circuitChannel, text
+	publishEvent : (entityName, crudOp, entityId, data)=>
+		m = JSON.stringify({entityName, crudOp, entityId, data})
+		@redis.publish @circuitChannel, m, (err)-> if err then logr.error("error while publishing event: #{err}")
 
 	onPulishReady : (cb)=>
 		( @publishReadyCBs = [] ).push cb
@@ -53,7 +54,6 @@ exports.Server = class Server
 		@sio.server.close()
 
 
-	recieveEvent : (message)=>
 
 	###
 	get controller reference from one of the configured controller folders
@@ -62,16 +62,21 @@ exports.Server = class Server
 	###
 	getController : (cn)=>
 		cf = path.resolve __dirname, @config.user_controllers || "./controller"
-		console.log @config.user_controllers,"<<<<"
 		require("#{cf}/#{cn}")[cn]
 
 
 	### PRIVATE ###
 
+	_recieveEvent : (entityName, crudOp, entityId, data)=>
+		console.log "=="
+		process.exit()
+		console.log m
+
 	_registerPubsub : =>
 		@redisSub.on "message", (channel, message)=>
 			if channel == @circuitChannel
-				@recieveEvent message
+				m = JSON.parse(message)
+				@_recieveEvent m.entityName, m.crudOp, m.entityId, m.data
 		@redisSub.subscribe @circuitChannel
 		@redisSub.on "subscribe", =>
 			while (cb = ( @publishReadyCBs || [] ).shift() )
@@ -102,5 +107,4 @@ exports.Server = class Server
 
 			socket.on "disconnect",=>
 				logr.info "client disconnecting:#{socket.id} ip:#{socket.clientAddress}"
-
 

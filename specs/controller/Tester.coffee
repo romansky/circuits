@@ -1,6 +1,9 @@
+
+doThrow = -> throw new Error("should not be here....")
+
 exports.Tester = class Tester 
 	
-	@create : ()->
-	@read : (id)->
-	@update : ()->
-	@delete : ()->
+	@create : ()->			doThrow()
+	@read :   (id, cb)->	doThrow()
+	@update : (id, data, cb)-> doThrow()
+	@delete : ()->			doThrow()
