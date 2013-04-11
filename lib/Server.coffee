@@ -9,6 +9,8 @@ path = require 'path'
 
 exports.Server = class Server
 
+	listeners : null
+
 	circuitChannel : "circuit-channel"
 
 	### @type Config serverConfig ###
@@ -31,6 +33,9 @@ exports.Server = class Server
 	### PUBLIC ###
 
 	constructor : (@config) ->
+
+		@listeners = new Listeners()
+
 		### Setup redis stuff ###
 		@redis = RedisClient.get(@config.redis_db, @config.redis_host, @config.redis_port)
 
@@ -103,7 +108,7 @@ exports.Server = class Server
 			logr.info "client connecting:#{socket.id} ip:#{socket.clientAddress}"
 			bindMessage = (message)=>
 				socket.on message, (args...)=>
-					Services[message](@,args...)
+					Services[message](socket.id,@,args...)
 			bindMessage(message) for message of Messages
 
 			socket.on "disconnect",=>

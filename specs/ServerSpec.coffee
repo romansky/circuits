@@ -67,7 +67,7 @@ describe "Server Specs",->
 		asyncSpecWait()
 		acl = [ role : "public", model: "tester", crudOps : [CRUD.read] ]
 		testObj = { a: "a", b: "b" }
-		spy = spyOn(Services, Messages.Register).andCallFake (a,b,c,d,cb)-> 
+		spy = spyOn(Services, Messages.Register).andCallFake (a,b,c,d,e,cb)-> 
 			cb(null, testObj)
 		server = getServerInstance()
 		client = getClientInstance()
