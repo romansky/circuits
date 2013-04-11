@@ -1,6 +1,7 @@
 {RedisClient} = require './RedisClient'
 {Services,Messages} = require './Services'
 {Config} = require './Config'
+{Listeners} = require './Listeners'
 
 sio = require 'socket.io'
 logr = require('node-logr').getLogger(__filename)
