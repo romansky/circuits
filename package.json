@@ -14,8 +14,8 @@
         "node-logr" : ">= 0.0.4",
 	"redis" : "latest",
 	"node-acl" : "0.0.2",
-	"socket.io-client" : "0.9.11",
-	"socket.io" : "0.9.13"
+	"socket.io-client" : "latest",
+	"socket.io" : "latest"
     },
     "devDependencies" : {
 	   "jasmine-node": ">= 1.0.26",
@@ -24,7 +24,7 @@
     "scripts" : {
 	"test": "cake test"
     },
-    "engine" : {"node" : ">=0.8.0"},
+    "engine" : {"node" : ">=0.9.0"},
     "author" : {
         "name" : "Roman Landenband",
         "email" : "roman.land@gmail.com",

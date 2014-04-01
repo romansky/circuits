@@ -46,41 +46,40 @@ describe "Server Specs",->
 	afterEach ->
 		envCleaup()
 
-	it "publishes event with object",->
-		asyncSpecWait()
+	it "publishes event with object",(done)->
 		testEN = "ZZZ"
 		testCO = CRUD.update
 		testEID = 5
 		testData = {that: "and this"}
 		server = getServerInstance()
-		spy = spyOn(server, "_recieveEvent").andCallFake (entityName, crudOp, entityId, data)->
+
+		spy = spyOn(server, "_recieveEvent").and.callFake (entityName, crudOp, entityId, data)->
 			
 			expect(entityName).toEqual(testEN)
 			expect(crudOp).toEqual(testCO)
 			expect(entityId).toEqual(testEID)
 			expect(data).toEqual(testData)
-			asyncSpecDone()
+			done()
 		server.onPulishReady ()->
 			server.publishEvent testEN, testCO, testEID, testData
 
-	it "registers request recieved and intercepted by services",->
-		asyncSpecWait()
+	it "registers request recieved and intercepted by services",(done)->
+
 		acl = [ role : "public", model: "tester", crudOps : [CRUD.read] ]
 		testObj = { a: "a", b: "b" }
-		spy = spyOn(Services, Messages.Register).andCallFake (a,b,c,d,e,cb)-> 
+		spy = spyOn(Services, Messages.Register).and.callFake (a,b,c,d,e,cb)-> 
 			cb(null, testObj)
 		server = getServerInstance()
 		client = getClientInstance()
 		client.on 'connect', ->
 			client.emit Messages.Register, "tester", [CRUD.read], 1, (err, data)->
 				expect(data).toEqual(testObj)
-				asyncSpecDone()
+				done()
 
-	it "recieves configuration of controllers folder and dispatches message to specified model",->
-		asyncSpecWait()
+	it "recieves configuration of controllers folder and dispatches message to specified model",(done)->
 		acl = [ role : "public", model: "Tester", crudOps : [CRUD.update] ]
 		testObj = { a: "a", b: "b" }
-		spy = spyOn(Tester, "read").andCallFake (id, cb)-> 
+		spy = spyOn(Tester, "read").and.callFake (id, cb)-> 
 			expect(id).toEqual(42)
 			cb(null, testObj)
 
@@ -90,14 +89,14 @@ describe "Server Specs",->
 		client.on 'connect', ->
 			client.emit Messages.Register, "Tester", [ CRUD.update ], 42, (err, data)->
 				expect(data).toEqual(testObj)
-				asyncSpecDone()
+				done()
 
 
-	it "dispatches a read message to model",->
-		asyncSpecWait()
+	it "dispatches a read message to model",(done)->
+		
 		acl = [ role : "public", model: "Tester", crudOps : [CRUD.read] ]
 		testObj = { a: "a", b: "b" }
-		spy = spyOn(Tester, "read").andCallFake (id, cb)-> 
+		spy = spyOn(Tester, "read").and.callFake (id, cb)-> 
 			expect(id).toEqual(42)
 			cb(null, testObj)
 
@@ -107,19 +106,21 @@ describe "Server Specs",->
 		client.on 'connect', ->
 			client.emit Messages.Operation, "Tester", [CRUD.read], 42, null, (err, data)->
 				expect(data).toEqual(testObj)
-				asyncSpecDone()
+				done()
 
-	it "notifies a registered client on model change",->
-		asyncSpecWait()
+	it "notifies a registered client on model change",(done)->
 		acl = [ role : "public", model: "Tester", crudOps : [CRUD.read] ]
 		testObj1 = { a: "a", b: "b" }
 		testObj2 = { a: "a2", b: "b2" }
-		spyOn(Tester, "read").andCallFake (id, cb)-> 
+		testsDone = 0
+		spyOn(Tester, "read").and.callFake (id, cb)-> 
 			expect(id).toEqual(42)
+			testsDone += 1
 			cb(null, testObj1)
 
-		spyOn(Tester, "update").andCallFake (id, data, cb)-> 
+		spyOn(Tester, "update").and.callFake (id, data, cb)-> 
 			expect(id).toEqual(42)
+			testsDone += 1
 			expect(data).toEqual(testObj2)
 			cb(null)
 
@@ -130,10 +131,12 @@ describe "Server Specs",->
 		clientB.on 'connect', ->
 			clientA.emit Messages.Register, "Tester", [CRUD.update], 42, (err, data)->
 				expect(err).toBeNull()
+				testsDone += 1
 				expect(data).toEqual(testObj1)
 			clientA.on Messages.Publish, (entityName, crudOp, entityId, data)->
 				expect(data).toEqual(testObj2)
-				asyncSpecDone()
+				expect(testsDone).toEqual(3)
+				done()
 			clientB.emit Messages.Operation,"Tester",[CRUD.update],42, testObj2, (err)->
 				expect(err).toBeNull()
 
