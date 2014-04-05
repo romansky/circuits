@@ -1,6 +1,5 @@
 redis = require 'redis'
 logr = require('node-logr').getLogger(__filename)
-{Config} = require './Config'
 
 exports.RedisClient = class RedisClient
 
@@ -34,7 +33,7 @@ exports.RedisClient = class RedisClient
 
 
 
-createNewClient = (db, host, port)->
+createNewClient = (db, host = "127.0.0.1", port = 6379)->
 	logr.info "creating redis client with args: #{db} #{host}:#{port}"
 	instance = redis.createClient port, host
 	instance.on 'error', (err)-> logr.error("redis client:#{err}")

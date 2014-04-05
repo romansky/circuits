@@ -9,7 +9,16 @@ High Level Design
 
 ## Usage
 
+===Server
+
+
+	var controllersDir = require('path').resolve(__dirname,"./controller");
 	
+
+
+
+===Client
+
 ## Installation
 
 	npm install circuits

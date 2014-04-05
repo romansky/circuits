@@ -1,6 +1,5 @@
 {RedisClient} = require './RedisClient'
 {Services,Messages} = require './Services'
-{Config} = require './Config'
 {Listeners} = require './Listeners'
 
 sio = require 'socket.io'
@@ -11,35 +10,35 @@ exports.Server = class Server
 
 	listeners : null
 
-	circuitChannel : "circuit-channel"
-
-	### @type Config serverConfig ###
-	config : null
-
 	### @type RedisClient ###
 	redis : null
 	### @type RedisClient ###
 	redisSub : null
-
 	### @type [Function,..] ###
 	publishReadyCBs : null
-
 	### @type socket.io ###
 	sio : null
-
 	### @type List<Socket> ###
 	connectedSockets : null
 
 	### PUBLIC ###
 
-	constructor : (@config) ->
+	###
+	@param serverPort Int
+	@param redisDB Int
+	@param controllersDir String
+	@param redisHost String
+	@param redisPort Int
+	@param circuitChannel String
+	###
+	constructor : (@serverPort, @redisDB, @controllersDir = "./controllers" , @redisHost = "127.0.0.1", @redisPort = 6379, @circuitChannel = "circuit-channel") ->
 
 		@listeners = new Listeners()
 
 		### Setup redis stuff ###
-		@redis = RedisClient.get(@config.redis_db, @config.redis_host, @config.redis_port)
+		@redis = RedisClient.get(@redisDB, @redisHost, @redisPort)
 
-		@redisSub = RedisClient.get(@config.redis_db, @config.redis_host, @config.redis_port, true)
+		@redisSub = RedisClient.get(@redisDB, @redisHost, @redisPort, true)
 		@_registerPubsub()
 		### Setup socket io stuff ###
 		@_setupSocketIO()
@@ -67,9 +66,12 @@ exports.Server = class Server
 	@param String cn - controller name
 	###
 	getController : (cn)=>
-		cf = path.resolve __dirname, @config.user_controllers || "./controller"
-		require("#{cf}/#{cn}")[cn]
-
+		try
+			cf = path.resolve __dirname, @controllersDir
+			require("#{cf}/#{cn}")[cn]
+		catch err
+			logr.error("could not find resource file #{cf}/#{cn} ")
+			null
 
 	### PRIVATE ###
 
@@ -89,14 +91,12 @@ exports.Server = class Server
 				cb()
 
 	_setupSocketIO : ()=>
-		@sio = sio.listen(@config.server_port)
+		@sio = sio.listen(7474)
 		@connectedSockets = []
-		switch @config.preset
-			when Config.preset.TEST
-				@sio.configure ()=>
-					@sio.set 'transports', ['websocket']
-					@sio.set 'flash policy server', false
-					@sio.disable 'flash policy server'
+		@sio.configure ()=>
+			@sio.set 'transports', ['websocket']
+			@sio.set 'flash policy server', false
+			@sio.disable 'flash policy server'
 		@sio.on 'connection', (socket)=>
 			@connectedSockets.push socket
 			#creates personal room for this socket

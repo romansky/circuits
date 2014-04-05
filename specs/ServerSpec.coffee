@@ -1,6 +1,5 @@
 {RedisClient} = require '../lib/RedisClient'
 {Server} = require '../lib/Server'
-{Config} = require '../lib/Config'
 {CRUD} = require 'node-acl'
 {Services,Messages} = require '../lib/Services'
 {Tester} = require './controller/Tester'
@@ -9,23 +8,18 @@ sioc = require 'socket.io-client'
 
 tcf = require('path').resolve(__dirname,"./controller")
 
-flatCopy = (target,sources...)-> sources.reduce(((a,b)-> a[k] = v for k,v of b ; a ),target)
-
-
-__config = Config.get Config.preset.TEST
 __server = null
-getServerInstance = (configToMerge)->
-	# if _server then _server.
-	mergedConf = flatCopy({}, __config,configToMerge)
-	__server = new Server mergedConf
+
+getServerInstance = (controllersDir = "./controllerz", serverPort = 7474, redisDb = 15)->
+	__server = new Server(serverPort, redisDb, controllersDir)
 
 __client = null
 __auxClients = []
 getClientInstance = (isAux = false)->
 	if not isAux
-		__client ?= sioc.connect( "http://127.0.0.1", { 'port': __config.server_port , 'reconnect': false, 'force new connection': true})
+		__client ?= sioc.connect( "http://127.0.0.1", { 'port': 7474 , 'reconnect': false, 'force new connection': true})
 	else
-		__auxClients.push sioc.connect( "http://127.0.0.1", { 'port': __config.server_port , 'reconnect': false, 'force new connection': true})
+		__auxClients.push sioc.connect( "http://127.0.0.1", { 'port': 7474 , 'reconnect': false, 'force new connection': true})
 		__auxClients[__auxClients.length-1]
 
 envCleaup = ->
@@ -41,40 +35,40 @@ describe "Server Specs",->
 
 	beforeEach ->
 		console.log "==========running new test=========="
-		RedisClient.get(__config.redis_db, __config.redis_host, __config.redis_port).flushdb()
+		RedisClient.get(15).flushdb()
 
 	afterEach ->
 		envCleaup()
 
-	it "publishes event with object",(done)->
-		testEN = "ZZZ"
-		testCO = CRUD.update
-		testEID = 5
-		testData = {that: "and this"}
-		server = getServerInstance()
+	# it "publishes event with object",(done)->
+	# 	testEN = "ZZZ"
+	# 	testCO = CRUD.update
+	# 	testEID = 5
+	# 	testData = {that: "and this"}
+	# 	server = getServerInstance()
 
-		spy = spyOn(server, "_recieveEvent").andCallFake (entityName, crudOp, entityId, data)->
+	# 	spy = spyOn(server, "_recieveEvent").andCallFake (entityName, crudOp, entityId, data)->
 			
-			expect(entityName).toEqual(testEN)
-			expect(crudOp).toEqual(testCO)
-			expect(entityId).toEqual(testEID)
-			expect(data).toEqual(testData)
-			done()
-		server.onPulishReady ()->
-			server.publishEvent testEN, testCO, testEID, testData
+	# 		expect(entityName).toEqual(testEN)
+	# 		expect(crudOp).toEqual(testCO)
+	# 		expect(entityId).toEqual(testEID)
+	# 		expect(data).toEqual(testData)
+	# 		done()
+	# 	server.onPulishReady ()->
+	# 		server.publishEvent testEN, testCO, testEID, testData
 
-	it "registers request recieved and intercepted by services",(done)->
+	# it "registers request recieved and intercepted by services",(done)->
 
-		acl = [ role : "public", model: "tester", crudOps : [CRUD.read] ]
-		testObj = { a: "a", b: "b" }
-		spy = spyOn(Services, Messages.Register).andCallFake (a,b,c,d,e,cb)-> 
-			cb(null, testObj)
-		server = getServerInstance()
-		client = getClientInstance()
-		client.on 'connect', ->
-			client.emit Messages.Register, "tester", [CRUD.read], 1, (err, data)->
-				expect(data).toEqual(testObj)
-				done()
+	# 	acl = [ role : "public", model: "tester", crudOps : [CRUD.read] ]
+	# 	testObj = { a: "a", b: "b" }
+	# 	spy = spyOn(Services, Messages.Register).andCallFake (a,b,c,d,e,cb)-> 
+	# 		cb(null, testObj)
+	# 	server = getServerInstance()
+	# 	client = getClientInstance()
+	# 	client.on 'connect', ->
+	# 		client.emit Messages.Register, "tester", [CRUD.read], 1, (err, data)->
+	# 			expect(data).toEqual(testObj)
+	# 			done()
 
 	it "recieves configuration of controllers folder and dispatches message to specified model",(done)->
 		acl = [ role : "public", model: "Tester", crudOps : [CRUD.update] ]
@@ -82,8 +76,8 @@ describe "Server Specs",->
 		spy = spyOn(Tester, "read").andCallFake (id, cb)-> 
 			expect(id).toEqual(42)
 			cb(null, testObj)
-
-		server = getServerInstance({user_controllers : tcf})
+		
+		server = getServerInstance(tcf)
 
 		client = getClientInstance()
 		client.on 'connect', ->
@@ -100,7 +94,7 @@ describe "Server Specs",->
 			expect(id).toEqual(42)
 			cb(null, testObj)
 
-		server = getServerInstance({user_controllers : tcf})
+		server = getServerInstance(controllersDir = tcf)
 
 		client = getClientInstance()
 		client.on 'connect', ->
@@ -124,7 +118,7 @@ describe "Server Specs",->
 			expect(data).toEqual(testObj2)
 			cb(null)
 
-		server = getServerInstance({user_controllers : tcf})
+		server = getServerInstance(controllersDir = tcf)
 
 		clientA = getClientInstance()
 		clientB = getClientInstance(true)

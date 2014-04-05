@@ -1,6 +1,6 @@
 {
     "name" : "circuits",
-    "version" : "0.0.2",
+    "version" : "0.0.3",
     "description" : "Real-Time Backend - Minimalistic Style",
     "main" : "./index.js",
     "keywords" : [
@@ -12,10 +12,10 @@
     },
     "dependencies" : {
         "node-logr" : ">= 0.0.4",
-	"redis" : "latest",
-	"node-acl" : "0.0.2",
-	"socket.io-client" : "latest",
-	"socket.io" : "latest"
+    	"redis" : "latest",
+    	"node-acl" : "0.0.2",
+    	"socket.io-client" : "latest",
+    	"socket.io" : "latest"
     },
     "devDependencies" : {
 	   "jasmine-node": "1.14.03",
