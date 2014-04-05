@@ -53,7 +53,7 @@ describe "Server Specs",->
 		testData = {that: "and this"}
 		server = getServerInstance()
 
-		spy = spyOn(server, "_recieveEvent").and.callFake (entityName, crudOp, entityId, data)->
+		spy = spyOn(server, "_recieveEvent").andCallFake (entityName, crudOp, entityId, data)->
 			
 			expect(entityName).toEqual(testEN)
 			expect(crudOp).toEqual(testCO)
@@ -67,7 +67,7 @@ describe "Server Specs",->
 
 		acl = [ role : "public", model: "tester", crudOps : [CRUD.read] ]
 		testObj = { a: "a", b: "b" }
-		spy = spyOn(Services, Messages.Register).and.callFake (a,b,c,d,e,cb)-> 
+		spy = spyOn(Services, Messages.Register).andCallFake (a,b,c,d,e,cb)-> 
 			cb(null, testObj)
 		server = getServerInstance()
 		client = getClientInstance()
@@ -79,7 +79,7 @@ describe "Server Specs",->
 	it "recieves configuration of controllers folder and dispatches message to specified model",(done)->
 		acl = [ role : "public", model: "Tester", crudOps : [CRUD.update] ]
 		testObj = { a: "a", b: "b" }
-		spy = spyOn(Tester, "read").and.callFake (id, cb)-> 
+		spy = spyOn(Tester, "read").andCallFake (id, cb)-> 
 			expect(id).toEqual(42)
 			cb(null, testObj)
 
@@ -96,7 +96,7 @@ describe "Server Specs",->
 		
 		acl = [ role : "public", model: "Tester", crudOps : [CRUD.read] ]
 		testObj = { a: "a", b: "b" }
-		spy = spyOn(Tester, "read").and.callFake (id, cb)-> 
+		spy = spyOn(Tester, "read").andCallFake (id, cb)-> 
 			expect(id).toEqual(42)
 			cb(null, testObj)
 
@@ -113,12 +113,12 @@ describe "Server Specs",->
 		testObj1 = { a: "a", b: "b" }
 		testObj2 = { a: "a2", b: "b2" }
 		testsDone = 0
-		spyOn(Tester, "read").and.callFake (id, cb)-> 
+		spyOn(Tester, "read").andCallFake (id, cb)-> 
 			expect(id).toEqual(42)
 			testsDone += 1
 			cb(null, testObj1)
 
-		spyOn(Tester, "update").and.callFake (id, data, cb)-> 
+		spyOn(Tester, "update").andCallFake (id, data, cb)-> 
 			expect(id).toEqual(42)
 			testsDone += 1
 			expect(data).toEqual(testObj2)

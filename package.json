@@ -18,7 +18,7 @@
 	"socket.io" : "latest"
     },
     "devDependencies" : {
-	   "jasmine-node": ">= 1.0.26",
+	   "jasmine-node": "1.14.03",
 	   "coffee-script": "latest"
     },
     "scripts" : {
