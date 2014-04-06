@@ -8,8 +8,8 @@ path = require 'path'
 
 exports.Server = class Server
 
+	### @type Listeners ###
 	listeners : null
-
 	### @type RedisClient ###
 	redis : null
 	### @type RedisClient ###
@@ -24,14 +24,14 @@ exports.Server = class Server
 	### PUBLIC ###
 
 	###
-	@param serverPort Int
+	@param sioPort Int
 	@param redisDB Int
-	@param controllersDir String
+	@param controllerResolver Function[String,Map[String,Any]]
 	@param redisHost String
 	@param redisPort Int
 	@param circuitChannel String
 	###
-	constructor : (@serverPort, @redisDB, @controllersDir = "./controllers" , @redisHost = "127.0.0.1", @redisPort = 6379, @circuitChannel = "circuit-channel") ->
+	constructor : (@sioPort, @redisDB, @controllerResolver = (()-> null) , @redisHost = "127.0.0.1", @redisPort = 6379, @circuitChannel = "circuit-channel") ->
 
 		@listeners = new Listeners()
 
@@ -61,17 +61,13 @@ exports.Server = class Server
 
 
 	###
-	get controller reference from one of the configured controller folders
+	get controller from resolver
 
 	@param String cn - controller name
 	###
 	getController : (cn)=>
-		try
-			cf = path.resolve __dirname, @controllersDir
-			require("#{cf}/#{cn}")[cn]
-		catch err
-			logr.error("could not find resource file #{cf}/#{cn} ")
-			null
+		@controllerResolver(cn)
+		
 
 	### PRIVATE ###
 
@@ -91,7 +87,7 @@ exports.Server = class Server
 				cb()
 
 	_setupSocketIO : ()=>
-		@sio = sio.listen(7474)
+		@sio = sio.listen(@sioPort)
 		@connectedSockets = []
 		@sio.configure ()=>
 			@sio.set 'transports', ['websocket']
@@ -99,7 +95,7 @@ exports.Server = class Server
 			@sio.disable 'flash policy server'
 		@sio.on 'connection', (socket)=>
 			@connectedSockets.push socket
-			#creates personal room for this socket
+			# creates personal room for this socket
 			socket.join(socket.id)
 			# print out some debug info
 			socket.clientAddress = socket.handshake.address.address + ":" + socket.handshake.address.port

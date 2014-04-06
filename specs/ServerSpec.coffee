@@ -2,16 +2,14 @@
 {Server} = require '../lib/Server'
 {CRUD} = require 'node-acl'
 {Services,Messages} = require '../lib/Services'
-{Tester} = require './controller/Tester'
 
 sioc = require 'socket.io-client'
-
 tcf = require('path').resolve(__dirname,"./controller")
 
 __server = null
 
-getServerInstance = (controllersDir = "./controllerz", serverPort = 7474, redisDb = 15)->
-	__server = new Server(serverPort, redisDb, controllersDir)
+getServerInstance = (contollerHandler)->
+	__server = new Server(7474, 15, contollerHandler)
 
 __client = null
 __auxClients = []
@@ -40,44 +38,48 @@ describe "Server Specs",->
 	afterEach ->
 		envCleaup()
 
-	# it "publishes event with object",(done)->
-	# 	testEN = "ZZZ"
-	# 	testCO = CRUD.update
-	# 	testEID = 5
-	# 	testData = {that: "and this"}
-	# 	server = getServerInstance()
+	it "publishes event with object",(done)->
+		testEN = "ZZZ"
+		testCO = CRUD.update
+		testEID = 5
+		testData = {that: "and this"}
+		server = getServerInstance()
 
-	# 	spy = spyOn(server, "_recieveEvent").andCallFake (entityName, crudOp, entityId, data)->
+		spy = spyOn(server, "_recieveEvent").andCallFake (entityName, crudOp, entityId, data)->
 			
-	# 		expect(entityName).toEqual(testEN)
-	# 		expect(crudOp).toEqual(testCO)
-	# 		expect(entityId).toEqual(testEID)
-	# 		expect(data).toEqual(testData)
-	# 		done()
-	# 	server.onPulishReady ()->
-	# 		server.publishEvent testEN, testCO, testEID, testData
+			expect(entityName).toEqual(testEN)
+			expect(crudOp).toEqual(testCO)
+			expect(entityId).toEqual(testEID)
+			expect(data).toEqual(testData)
+			done()
+		server.onPulishReady ()->
+			server.publishEvent testEN, testCO, testEID, testData
 
-	# it "registers request recieved and intercepted by services",(done)->
+	it "registers request recieved and intercepted by services",(done)->
 
-	# 	acl = [ role : "public", model: "tester", crudOps : [CRUD.read] ]
-	# 	testObj = { a: "a", b: "b" }
-	# 	spy = spyOn(Services, Messages.Register).andCallFake (a,b,c,d,e,cb)-> 
-	# 		cb(null, testObj)
-	# 	server = getServerInstance()
-	# 	client = getClientInstance()
-	# 	client.on 'connect', ->
-	# 		client.emit Messages.Register, "tester", [CRUD.read], 1, (err, data)->
-	# 			expect(data).toEqual(testObj)
-	# 			done()
+		acl = [ role : "public", model: "tester", crudOps : [CRUD.read] ]
+		testObj = { a: "a", b: "b" }
+		spy = spyOn(Services, Messages.Register).andCallFake (a,b,c,d,e,cb)-> 
+			cb(null, testObj)
+		server = getServerInstance()
+		client = getClientInstance()
+		client.on 'connect', ->
+			client.emit Messages.Register, "tester", [CRUD.read], 1, (err, data)->
+				expect(data).toEqual(testObj)
+				done()
 
-	it "recieves configuration of controllers folder and dispatches message to specified model",(done)->
+	it "registers for updates and receives the current value",(done)->
 		acl = [ role : "public", model: "Tester", crudOps : [CRUD.update] ]
 		testObj = { a: "a", b: "b" }
-		spy = spyOn(Tester, "read").andCallFake (id, cb)-> 
-			expect(id).toEqual(42)
-			cb(null, testObj)
 		
-		server = getServerInstance(tcf)
+		good = false
+		server = getServerInstance (controllerName)->
+			{
+				'read' : (id, cb)-> 
+					expect(id).toEqual(42)
+					cb(null, testObj)
+			}
+		
 
 		client = getClientInstance()
 		client.on 'connect', ->
@@ -86,19 +88,20 @@ describe "Server Specs",->
 				done()
 
 
-	it "dispatches a read message to model",(done)->
-		
+	it "dispatches a read message to model via an Operation",(done)->
 		acl = [ role : "public", model: "Tester", crudOps : [CRUD.read] ]
 		testObj = { a: "a", b: "b" }
-		spy = spyOn(Tester, "read").andCallFake (id, cb)-> 
-			expect(id).toEqual(42)
-			cb(null, testObj)
 
-		server = getServerInstance(controllersDir = tcf)
+		server = getServerInstance (controllerName)->
+			{
+				'read' : (id, cb)-> 
+					expect(id).toEqual(42)
+					cb(null, testObj)
+			}
 
 		client = getClientInstance()
 		client.on 'connect', ->
-			client.emit Messages.Operation, "Tester", [CRUD.read], 42, null, (err, data)->
+			client.emit Messages.Operation, "Tester", [ CRUD.read ], 42, null, (err, data)->
 				expect(data).toEqual(testObj)
 				done()
 
@@ -107,21 +110,24 @@ describe "Server Specs",->
 		testObj1 = { a: "a", b: "b" }
 		testObj2 = { a: "a2", b: "b2" }
 		testsDone = 0
-		spyOn(Tester, "read").andCallFake (id, cb)-> 
-			expect(id).toEqual(42)
-			testsDone += 1
-			cb(null, testObj1)
 
-		spyOn(Tester, "update").andCallFake (id, data, cb)-> 
-			expect(id).toEqual(42)
-			testsDone += 1
-			expect(data).toEqual(testObj2)
-			cb(null)
+		server = getServerInstance (controllerName)->
+			{
+				'read' : (id, cb)-> 
+					testsDone += 1
+					expect(id).toEqual(42)
+					cb(null, testObj1)
+				'update' : (id, data, cb)->
+					expect(id).toEqual(42)
+					testsDone += 1
+					expect(data).toEqual(testObj2)
+					cb(null)
 
-		server = getServerInstance(controllersDir = tcf)
+			}
 
 		clientA = getClientInstance()
 		clientB = getClientInstance(true)
+
 		clientB.on 'connect', ->
 			clientA.emit Messages.Register, "Tester", [CRUD.update], 42, (err, data)->
 				expect(err).toBeNull()
