@@ -102,6 +102,7 @@ exports.Server = class Server
 			logr.info "client connecting:#{socket.id} ip:#{socket.clientAddress}"
 			bindMessage = (message)=>
 				socket.on message, (args...)=>
+					console.log(Services[message])
 					Services[message](socket.id,@,args...)
 			bindMessage(message) for message of Messages
 

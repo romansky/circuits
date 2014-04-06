@@ -11,23 +11,16 @@ exports.Messages = {
 exports.Services = {
 
 	### 
-	@param Server server - an instance of the server
-	@param String entityName - model name
-	@param [ node-acl.CRUD ] crudOps - crud operations
-	@param Int entityId - the entity ID
-	@param Function(Error, data) callback - a callback function to be called with the result or error 
+	@param server Server - an instance of the server
+	@param entityName String - model name
+	@param entityId Int - the entity ID
+	@param callback Function(Error, data) - a callback function to be called with the result or error 
 	###
-	Register : (clientId, server, entityName, crudOps, entityId, callback) ->
+	Register : (clientId, server, entityName, entityId, callback) ->
 		C = server.getController(entityName)
-		# currently we support only one crud operation per register request
-		crudOp = crudOps[0]
-		switch crudOp
-			when CRUD.update
-				C.read(entityId, callback)
-				# implement client registration queue
-				server.listeners.add(clientId,entityName, crudOps, entityId)
-			else callback(new Error("bad crud operation requested:" + crudOps))
-
+		C.read(entityId, callback)
+		server.listeners.add(clientId,entityName, [ 'update' ], entityId)
+		
 	### 
 	@param String clientId
 	@param Server server - an instance of the server 
@@ -39,7 +32,6 @@ exports.Services = {
 	###
 	Operation : (clientId, server, entityName, crudOps, entityId, data, callback) ->
 		C = server.getController(entityName)
-		# currently we support only one crud operation per register request
 		crudOp = crudOps[0]
 		switch crudOp
 			when CRUD.read 
@@ -48,5 +40,12 @@ exports.Services = {
 				C.update(entityId, data, callback)
 				server.publishEvent(entityName, crudOps, entityId, data)
 			else callback(new Error("bad crud operation requested:" + crudOps))
+
+
+	UnRegister : ()->
+		throw "TBD"
+
+	Publish : ()->
+		throw "TBD"
 
 }

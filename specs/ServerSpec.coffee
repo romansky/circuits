@@ -59,12 +59,12 @@ describe "Server Specs",->
 
 		acl = [ role : "public", model: "tester", crudOps : [CRUD.read] ]
 		testObj = { a: "a", b: "b" }
-		spy = spyOn(Services, Messages.Register).andCallFake (a,b,c,d,e,cb)-> 
+		spy = spyOn(Services, Messages.Register).andCallFake (a,b,c,d,cb)->
 			cb(null, testObj)
 		server = getServerInstance()
 		client = getClientInstance()
 		client.on 'connect', ->
-			client.emit Messages.Register, "tester", [CRUD.read], 1, (err, data)->
+			client.emit Messages.Register, "tester", 1, (err, data)->
 				expect(data).toEqual(testObj)
 				done()
 
@@ -83,7 +83,7 @@ describe "Server Specs",->
 
 		client = getClientInstance()
 		client.on 'connect', ->
-			client.emit Messages.Register, "Tester", [ CRUD.update ], 42, (err, data)->
+			client.emit Messages.Register, "Tester", 42, (err, data)->
 				expect(data).toEqual(testObj)
 				done()
 
@@ -129,7 +129,7 @@ describe "Server Specs",->
 		clientB = getClientInstance(true)
 
 		clientB.on 'connect', ->
-			clientA.emit Messages.Register, "Tester", [CRUD.update], 42, (err, data)->
+			clientA.emit Messages.Register, "Tester", 42, (err, data)->
 				expect(err).toBeNull()
 				testsDone += 1
 				expect(data).toEqual(testObj1)
@@ -140,7 +140,6 @@ describe "Server Specs",->
 			clientB.emit Messages.Operation,"Tester",[CRUD.update],42, testObj2, (err)->
 				expect(err).toBeNull()
 
-	xit "checks if the controller folder exists as configured during startup"
 	xit "checks if the passed controller file exists"
 	xit "allows creating express server"
 	xit "cleans up after disconnection of a client"
