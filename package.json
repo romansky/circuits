@@ -1,7 +1,7 @@
 {
     "name" : "circuits",
     "version" : "0.1.0",
-    "description" : "Real-Time Backend - Minimalistic Style",
+    "description" : "Node.js RESTful socket.io router - Minimalistic Style",
     "main" : "./index.js",
     "keywords" : [
         "realtime", "real-time", "socket.io"
