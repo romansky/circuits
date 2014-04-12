@@ -24,14 +24,14 @@ exports.Server = class Server
 	### PUBLIC ###
 
 	###
-	@param sioPort Int
+	@param httpServer Int
 	@param redisDB Int
 	@param controllerResolver Function[String,Map[String,Any]]
 	@param redisHost String
 	@param redisPort Int
 	@param circuitChannel String
 	###
-	constructor : (@sioPort, @redisDB, @controllerResolver = (()-> null) , @redisHost = "127.0.0.1", @redisPort = 6379, @circuitChannel = "circuit-channel") ->
+	constructor : (@httpServer, @redisDB, @controllerResolver = (()-> null) , @redisHost = "127.0.0.1", @redisPort = 6379, @circuitChannel = "circuit-channel") ->
 
 		@listeners = new Listeners()
 
@@ -55,19 +55,18 @@ exports.Server = class Server
 		@connectedSockets.map (s)->
 			s.disconnect()
 			logr.info "disconnecting socket #{s.id}"
-		# shutdown socket io
-		@sio.server.close()
-
-
+		# shutdown socket io + server
+		@httpServer.close()
 
 	###
 	get controller from resolver
 
 	@param String cn - controller name
 	###
-	getController : (cn)=>
+	getController  : (cn)=>
 		@controllerResolver(cn)
 		
+	
 
 	### PRIVATE ###
 
@@ -87,23 +86,21 @@ exports.Server = class Server
 				cb()
 
 	_setupSocketIO : ()=>
-		@sio = sio.listen(@sioPort)
+		@sio = sio(@httpServer)
 		@connectedSockets = []
-		@sio.configure ()=>
-			@sio.set 'transports', ['websocket']
-			@sio.set 'flash policy server', false
-			@sio.disable 'flash policy server'
 		@sio.on 'connection', (socket)=>
 			@connectedSockets.push socket
 			# creates personal room for this socket
 			socket.join(socket.id)
 			# print out some debug info
-			socket.clientAddress = socket.handshake.address.address + ":" + socket.handshake.address.port
+			# TODO: fix this, to include IP and port of client
+			# socket.clientAddress = socket.handshake.address.address + ":" + socket.handshake.address.port
+			socket.clientAddress = socket.request.connection.remoteAddress
 			logr.info "client connecting:#{socket.id} ip:#{socket.clientAddress}"
-			bindMessage = (message)=>
-				socket.on message, (args...)=>
-					console.log(Services[message])
-					Services[message](socket.id,@,args...)
+			server = @
+			bindMessage = (message)->
+				socket.on message, (args...)->
+					Services[message](socket.id,server,args...)
 			bindMessage(message) for message of Messages
 
 			socket.on "disconnect",=>

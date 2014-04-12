@@ -2,22 +2,30 @@
 {Server} = require '../lib/Server'
 {CRUD} = require 'node-acl'
 {Services,Messages} = require '../lib/Services'
+http = require 'http'
 
 sioc = require 'socket.io-client'
+
 tcf = require('path').resolve(__dirname,"./controller")
 
 __server = null
+__httpServer = null
 
-getServerInstance = (contollerHandler)->
-	__server = new Server(7474, 15, contollerHandler)
+__testPort = 7474
+
+getServerInstance = (contollerHandler)->	
+	__httpServer = http.Server()
+	__server = new Server(__httpServer, 15, contollerHandler)	
+	__httpServer.listen __testPort
+	__server
 
 __client = null
 __auxClients = []
 getClientInstance = (isAux = false)->
 	if not isAux
-		__client ?= sioc.connect( "http://127.0.0.1", { 'port': 7474 , 'reconnect': false, 'force new connection': true})
+		__client ?= sioc.connect( "http://localhost:#{__testPort}", { 'reconnect': false, 'force new connection': true})
 	else
-		__auxClients.push sioc.connect( "http://127.0.0.1", { 'port': 7474 , 'reconnect': false, 'force new connection': true})
+		__auxClients.push sioc.connect( "http://localhost:#{__testPort}", { 'reconnect': false, 'force new connection': true})
 		__auxClients[__auxClients.length-1]
 
 envCleaup = ->
@@ -32,6 +40,7 @@ envCleaup = ->
 describe "Server Specs",->
 
 	beforeEach ->
+		__testPort++
 		console.log "==========running new test=========="
 		RedisClient.get(15).flushdb()
 

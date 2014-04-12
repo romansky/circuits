@@ -17,8 +17,8 @@ exports.Services = {
 	@param callback Function(Error, data) - a callback function to be called with the result or error 
 	###
 	Register : (clientId, server, entityName, entityId, callback) ->
-		C = server.getController(entityName)
-		C.read(entityId, callback)
+		controller = server.getController(entityName)
+		controller.read(entityId, callback)
 		server.listeners.add(clientId,entityName, [ 'update' ], entityId)
 		
 	### 
@@ -31,13 +31,13 @@ exports.Services = {
 	@param Function(Error, data) callback - a callback function to be called with the result or error 
 	###
 	Operation : (clientId, server, entityName, crudOps, entityId, data, callback) ->
-		C = server.getController(entityName)
+		controller = server.getController(entityName)
 		crudOp = crudOps[0]
 		switch crudOp
 			when CRUD.read 
-				C.read(entityId, callback)
+				controller.read(entityId, callback)
 			when CRUD.update
-				C.update(entityId, data, callback)
+				controller.update(entityId, data, callback)
 				server.publishEvent(entityName, crudOps, entityId, data)
 			else callback(new Error("bad crud operation requested:" + crudOps))
 

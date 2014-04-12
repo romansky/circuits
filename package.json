@@ -11,11 +11,11 @@
         "url" : "https://github.com/romansky/circuits"
     },
     "dependencies" : {
-        "node-logr" : ">= 0.0.4",
+        "node-logr" : ">= 0.1.*",
     	"redis" : "latest",
     	"node-acl" : "0.0.2",
-    	"socket.io-client" : "latest",
-    	"socket.io" : "latest"
+    	"socket.io-client" : "1.*",
+    	"socket.io" : "1.*"
     },
     "devDependencies" : {
 	   "jasmine-node": "1.14.03",
