@@ -1,4 +1,5 @@
 {CRUD} = require 'node-acl'
+logr = require('node-logr').getLogger(__filename)
 
 exports.Messages = {
 	"Register"
@@ -33,6 +34,7 @@ exports.Services = {
 	Operation : (clientId, server, entityName, crudOps, entityId, data, callback) ->
 		controller = server.getController(entityName)
 		crudOp = crudOps[0]
+		logr.debug "op:#{crudOp} controller:#{entityName}"
 		switch crudOp
 			when CRUD.read 
 				controller.read(entityId, callback)

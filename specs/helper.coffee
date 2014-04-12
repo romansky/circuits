@@ -22,9 +22,9 @@ exports.getServerInstance = (contollerHandler)->
 
 exports.getClientInstance = (isAux = false)->
 	if not isAux
-		__client ?= sioc.connect( "http://localhost:#{__testPort}", { 'reconnect': false, 'force new connection': true})
+		__client ?= sioc.connect( "http://localhost:#{__testPort}")
 	else
-		__auxClients.push sioc.connect( "http://localhost:#{__testPort}", { 'reconnect': false, 'force new connection': true})
+		__auxClients.push sioc.connect( "http://localhost:#{__testPort}", { 'reconnect': false, 'forceNew': true})
 		__auxClients[__auxClients.length-1]
 
 exports.envCleaup = ->

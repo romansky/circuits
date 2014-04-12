@@ -34,7 +34,37 @@ describe "backbone integration",->
 			done()
 
 
-	xit "receives an update!", (done)->
+	it "receives an update!", (done)->
+
+		class T2 extends BaseModel
+
+		server = helper.getServerInstance (c)->
+			{
+				read : (id, cb)-> 
+					expect(id).toEqual(8)
+					cb(null, {something : "other"})
+				update : (id, value, cb)->
+					cb(null)
+			}
+
+		sioc = helper.getClientInstance()
+		sioc2 = helper.getClientInstance(true)
+
+		t1 = new T2(sioc, {id: 8})
+		t2 = new T2(sioc2, {id: 8})
+
+		t1.registerSync ()->
+		t2.registerSync ()->
+			t1.set {"something": "other other"}
+			t1.save()
+
+		t2.on "change:something",->
+			if t2.get("something") is "other other"
+				expect(t2.get("something")).toEqual("other other")
+				done()
+
+
+
 
 
 	

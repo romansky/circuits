@@ -72,11 +72,13 @@ exports.Server = class Server
 
 	_recieveEvent : (entityName, crudOp, entityId, data)=>
 		clients = @listeners.getList(entityName, crudOp, entityId)
+		logr.debug "publishing to clients: #{clients.join(",")}"
 		clients.forEach((c)=> @sio.sockets.in(c).emit(Messages.Publish, entityName, crudOp, entityId, data ) )
 		
 
 	_registerPubsub : =>
 		@redisSub.on "message", (channel, message)=>
+			logr.debug "pubsub recieved ch:#{channel} msg:#{message}"
 			if channel == @circuitChannel
 				m = JSON.parse(message)
 				@_recieveEvent m.entityName, m.crudOp, m.entityId, m.data
@@ -100,6 +102,7 @@ exports.Server = class Server
 			server = @
 			bindMessage = (message)->
 				socket.on message, (args...)->
+					logr.debug "message:#{message} args:#{JSON.stringify(args)}"
 					Services[message](socket.id,server,args...)
 			bindMessage(message) for message of Messages
 

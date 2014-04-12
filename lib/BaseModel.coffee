@@ -5,8 +5,7 @@ exports.BaseModel = class BaseModel extends backbone.Model
 
 	sioc : null
 
-	constructor : (sioc, args...)->
-		@sioc = sioc
+	constructor : (@sioc, args...)->
 		super(args...)
 
 	registerSync : (callback)=>
