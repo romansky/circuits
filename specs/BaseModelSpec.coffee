@@ -16,7 +16,6 @@ describe "backbone integration",->
 
 		good = false
 		helper.getServerInstance (c)->
-			console.log ">>>>>>>",c
 			{
 				read : (id, cb)-> 
 					good = true
