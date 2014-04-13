@@ -1,4 +1,5 @@
 {BaseModel} = require '../lib/BaseModel'
+{BaseTypedModel} = require '../lib/BaseTypedModel'
 helper = require './helper'
 
 
@@ -13,6 +14,29 @@ describe "backbone integration",->
 	it "registers on updates", (done)->
 
 		class T extends BaseModel
+
+		good = false
+		helper.getServerInstance (c)->
+			{
+				read : (id, cb)-> 
+					good = true
+					expect(id).toEqual(8)
+					cb(null, {something : "other"})
+			}
+
+		sioc = helper.getClientInstance()
+		t = new T(sioc, {id: 8})
+		t.registerSync (err)->
+			expect(err).toBeFalsy()
+			expect(good).toBeTruthy()
+
+		t.on "change:something",->
+			expect(t.get("something")).toEqual("other")
+			done()
+
+
+	it "checks also typed model",->
+		class T extends BaseTypedModel
 
 		good = false
 		helper.getServerInstance (c)->
@@ -62,6 +86,9 @@ describe "backbone integration",->
 			if t2.get("something") is "other other"
 				expect(t2.get("something")).toEqual("other other")
 				done()
+
+
+
 
 
 
