@@ -24,12 +24,12 @@ High Level Design
 			case "Zubi": 
 				// return an object with CRUD operations mapping
 				return {
-					"read" : function(id, cb){
+					"read" : function(params, id, cb){
 						// return some value in first parameter of CB if there was an error
 						// do some work to fetch the value of this specific id
 						cb(null,"some value")
 					},
-					"update" : function(id, data, cb){
+					"update" : function(params, id, data, cb){
 						// return some value in first parameter of CB if there was an error
 						// do some work to update the value of this specific id
 						cb(null)
@@ -44,15 +44,15 @@ High Level Design
 	// connect with some socket.io client
 	var client = sioc.connect( "http://127.0.0.1", { 'port': 7474 , 'reconnect': false, 'force new connection': true})
 	// register for updates on a model with some id
-	client.emit(circuits.Messages.Register, "Zubi", 111, function(err){
+	client.emit(circuits.Messages.Register, "Zubi",{}, 111, function(err){
 		console.log("recieved update for Zubi:" + data)
 	})
 	//> recieved update for Zubi:some value
-	client.emit(circuits.Messages.Operation, "Zubi", ["update"], 111, "new value",function(err){
+	client.emit(circuits.Messages.Operation, "Zubi", ["update"], {}, 111, "new value",function(err){
 		assert(!err)
 	})
 	//> recieved update for Zubi:new value
-	client.emit(circuits.Messages.Operation, "Zubi", ["read"], 111, function(err,data){
+	client.emit(circuits.Messages.Operation, "Zubi", ["read"], {}, 111, function(err,data){
 		assert(!err)
 		assert(data == "new value")
 	})
