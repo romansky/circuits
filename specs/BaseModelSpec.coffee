@@ -18,7 +18,7 @@ describe "backbone integration",->
 		good = false
 		helper.getServerInstance (c)->
 			{
-				read : (id, cb)-> 
+				read : (params, id, cb)-> 
 					good = true
 					expect(id).toEqual(8)
 					cb(null, {something : "other"})
@@ -26,7 +26,7 @@ describe "backbone integration",->
 
 		sioc = helper.getClientInstance()
 		t = new T(sioc, {id: 8})
-		t.registerSync (err)->
+		t.registerSync {}, (err)->
 			expect(err).toBeFalsy()
 			expect(good).toBeTruthy()
 
@@ -41,7 +41,7 @@ describe "backbone integration",->
 		good = false
 		helper.getServerInstance (c)->
 			{
-				read : (id, cb)-> 
+				read : (params, id, cb)-> 
 					good = true
 					expect(id).toEqual(8)
 					cb(null, {something : "other"})
@@ -49,7 +49,7 @@ describe "backbone integration",->
 
 		sioc = helper.getClientInstance()
 		t = new T(sioc, {id: 8})
-		t.registerSync (err)->
+		t.registerSync {}, (err)->
 			expect(err).toBeFalsy()
 			expect(good).toBeTruthy()
 
@@ -64,10 +64,10 @@ describe "backbone integration",->
 
 		server = helper.getServerInstance (c)->
 			{
-				read : (id, cb)-> 
+				read : (params, id, cb)-> 
 					expect(id).toEqual(8)
 					cb(null, {something : "other"})
-				update : (id, value, cb)->
+				update : (params, id, value, cb)->
 					cb(null)
 			}
 
@@ -77,10 +77,11 @@ describe "backbone integration",->
 		t1 = new T2(sioc, {id: 8})
 		t2 = new T2(sioc2, {id: 8})
 
-		t1.registerSync ()->
-		t2.registerSync ()->
+		t1.registerSync {}, ()->
+		t2.registerSync {}, ()->
 			t1.set {"something": "other other"}
 			t1.save()
+
 
 		t2.on "change:something",->
 			if t2.get("something") is "other other"

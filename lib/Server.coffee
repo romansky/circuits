@@ -43,8 +43,8 @@ exports.Server = class Server
 		### Setup socket io stuff ###
 		@_setupSocketIO()
 
-	publishEvent : (entityName, crudOp, entityId, data)=>
-		m = JSON.stringify({entityName, crudOp, entityId, data})
+	publishEvent : (entityName, crudOp, params, entityId, data)=>
+		m = JSON.stringify({entityName, crudOp, params, entityId, data})
 		@redis.publish @circuitChannel, m, (err)-> if err then logr.error("error while publishing event: #{err}")
 
 	onPulishReady : (cb)=>
@@ -70,10 +70,10 @@ exports.Server = class Server
 
 	### PRIVATE ###
 
-	_recieveEvent : (entityName, crudOp, entityId, data)=>
+	_recieveEvent : (entityName, crudOp, params, entityId, data)=>
 		clients = @listeners.getList(entityName, crudOp, entityId)
 		logr.debug "publishing to clients: #{clients.join(",")}"
-		clients.forEach((c)=> @sio.sockets.in(c).emit(Messages.Publish, entityName, crudOp, entityId, data ) )
+		clients.forEach((c)=> @sio.sockets.in(c).emit(Messages.Publish, entityName, crudOp, params, entityId, data ) )
 		
 
 	_registerPubsub : =>
@@ -81,7 +81,7 @@ exports.Server = class Server
 			logr.debug "pubsub recieved ch:#{channel} msg:#{message}"
 			if channel == @circuitChannel
 				m = JSON.parse(message)
-				@_recieveEvent m.entityName, m.crudOp, m.entityId, m.data
+				@_recieveEvent m.entityName, m.crudOp, m.params, m.entityId, m.data
 		@redisSub.subscribe @circuitChannel
 		@redisSub.on "subscribe", =>
 			while (cb = ( @publishReadyCBs || [] ).shift() )
