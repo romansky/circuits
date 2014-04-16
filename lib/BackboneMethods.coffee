@@ -1,10 +1,12 @@
 {Messages} = require './Services'
+Backbone = require 'backbone'
 
 logr = require('node-logr').getLogger(__filename)
 
 exports.registerSync = (params, callback = (->), model, sioc)->
 	modelName = model.constructor.name
-	sioc.emit Messages.Register, modelName, params, model.id, (err,curValue)->
+	logr.debug "sending registration request for model:#{modelName} id:#{model.id}"
+	sioc.emit Messages.Register, modelName, params, model.id or 0, (err,curValue)->
 		if err
 			msg = "failed to register model name:#{modelName} id:#{model.id} err:#{err}"
 			logr.error msg
@@ -12,15 +14,29 @@ exports.registerSync = (params, callback = (->), model, sioc)->
 		else
 			model.set curValue
 			callback(null)
-	sioc.on Messages.Publish, (_modelName, _crudOps, _params, _modelId, _newData)->
+	sioc.on Messages.Publish, (_modelName, _crudOps, _params, _eventParams)->
+		[ _modelId , _newData ] = _eventParams
+		logr.debug "received publish event model:#{_modelName} crudOp:#{_crudOps} id:#{_modelId} data:#{_newData}"
 		if modelName is _modelName and model.id is _modelId
 			# TODO: need to manage collisions better, maybe with changes counter..?
 			model.set _newData
 
+isCollection = (backboneObject)->
+        backboneObject?.__super__?.constructor == Backbone.Collection
 
 exports.sync = (method, model, options, sioc)->
 	modelName = model.constructor.name
-	sioc.emit Messages.Operation, modelName, [method], options.params || {}, model.id, model.toJSON(), (err,res)->
+
+	sending = switch method
+		when "create" then [ model.toJSON() ]
+		when "read"
+			if isCollection(model) then []
+			else [ model.id ]
+		when "update" then [ model.id, model.toJSON() ]
+		when "delete" then  [ model.id ]
+
+	logr.debug "sending message model:#{modelName} method:#{method} sending:#{JSON.stringify(sending)}"
+	sioc.emit Messages.Operation, modelName, method, options.params || {}, sending... , (err,res)->
 		if err
 			logr.error "error while syncing model; name:#{modelName} id:#{model.id} err: #{err}"
 			options.error(model, err)

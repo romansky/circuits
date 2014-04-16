@@ -1,6 +1,7 @@
 {RedisClient} = require './RedisClient'
 {Services,Messages} = require './Services'
 {Listeners} = require './Listeners'
+{CRUD} = require 'node-acl'
 
 sio = require 'socket.io'
 logr = require('node-logr').getLogger(__filename)
@@ -43,8 +44,9 @@ exports.Server = class Server
 		### Setup socket io stuff ###
 		@_setupSocketIO()
 
-	publishEvent : (entityName, crudOp, params, entityId, data)=>
-		m = JSON.stringify({entityName, crudOp, params, entityId, data})
+	publishEvent : (entityName, crudOp, params, eventParams...)=>
+		logr.info "publishing event entity:#{entityName} op:#{crudOp} params:#{JSON.stringify(params)}"
+		m = JSON.stringify({entityName, crudOp, params, eventParams })
 		@redis.publish @circuitChannel, m, (err)-> if err then logr.error("error while publishing event: #{err}")
 
 	onPulishReady : (cb)=>
@@ -70,10 +72,15 @@ exports.Server = class Server
 
 	### PRIVATE ###
 
-	_recieveEvent : (entityName, crudOp, params, entityId, data)=>
+	_recieveEvent : (entityName, crudOp, params, eventParams)=>
+		# id = 0 is fallback for collections 
+		entityId = switch crudOp
+			when CRUD.read then eventParams[0] or 0
+			when CRUD.update then eventParams[0]
+			else throw "unknow op:#{crudOp}"
 		clients = @listeners.getList(entityName, crudOp, entityId)
-		logr.debug "publishing to clients: #{clients.join(",")}"
-		clients.forEach((c)=> @sio.sockets.in(c).emit(Messages.Publish, entityName, crudOp, params, entityId, data ) )
+		logr.debug "publishing to clients entity:#{entityName} op:#{crudOp} id:#{entityId} eventParams:#{JSON.stringify(eventParams)} #{clients.join(",")}"
+		clients.forEach((c)=> @sio.sockets.in(c).emit(Messages.Publish, entityName, crudOp, params, eventParams ) )
 		
 
 	_registerPubsub : =>
@@ -81,7 +88,7 @@ exports.Server = class Server
 			logr.debug "pubsub recieved ch:#{channel} msg:#{message}"
 			if channel == @circuitChannel
 				m = JSON.parse(message)
-				@_recieveEvent m.entityName, m.crudOp, m.params, m.entityId, m.data
+				@_recieveEvent m.entityName, m.crudOp, m.params, m.eventParams
 		@redisSub.subscribe @circuitChannel
 		@redisSub.on "subscribe", =>
 			while (cb = ( @publishReadyCBs || [] ).shift() )
@@ -102,8 +109,10 @@ exports.Server = class Server
 			server = @
 			bindMessage = (message)->
 				socket.on message, (args...)->
-					logr.debug "message:#{message} args:#{JSON.stringify(args)}"
-					Services[message](socket.id,server,args...)
+					# pop last arg because its null
+					cb = args.pop()
+					logr.debug "received message:#{message} args:#{JSON.stringify(args)}"
+					Services[message](socket.id,server,args...,cb)
 			bindMessage(message) for message of Messages
 
 			socket.on "disconnect",=>

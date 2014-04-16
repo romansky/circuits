@@ -17,18 +17,17 @@ describe "Server Specs",->
 		testData = {that: "and this"}
 		server = helper.getServerInstance()
 
-		spy = spyOn(server, "_recieveEvent").andCallFake (entityName, crudOp, params, entityId, data)->
+		spy = spyOn(server, "_recieveEvent").andCallFake (entityName, crudOp, params, eventParams)->
 			expect(entityName).toEqual(testEN)
 			expect(crudOp).toEqual(testCO)
 			expect(params).toEqual(params)
-			expect(entityId).toEqual(testEID)
-			expect(data).toEqual(testData)
+			expect(eventParams[0]).toEqual(testEID)
+			expect(eventParams[1]).toEqual(testData)
 			done()
 		server.onPulishReady ()->
 			server.publishEvent(testEN, testCO, {}, testEID, testData)
 
 	it "registers request recieved and intercepted by services",(done)->
-
 		acl = [ role : "public", model: "tester", crudOps : [CRUD.read] ]
 		testObj = { a: "a", b: "b" }
 		spy = spyOn(Services, Messages.Register).andCallFake (a,b,c,d,e,cb)->
@@ -73,11 +72,11 @@ describe "Server Specs",->
 
 		client = helper.getClientInstance()
 		client.on 'connect', ->
-			client.emit Messages.Operation, "Tester", [ CRUD.read ], {}, 42, null, (err, data)->
+			client.emit Messages.Operation, "Tester", CRUD.read, {}, 42, null, (err, data)->
 				expect(data).toEqual(testObj)
 				done()
 
-	it "notifies a registered client on model change",(done)->
+	it "notifies a registered client on model change", (done)->
 		acl = [ role : "public", model: "Tester", crudOps : [CRUD.read] ]
 		testObj1 = { a: "a", b: "b" }
 		testObj2 = { a: "a2", b: "b2" }
@@ -105,11 +104,14 @@ describe "Server Specs",->
 				expect(err).toBeNull()
 				testsDone += 1
 				expect(data).toEqual(testObj1)
-			clientA.on Messages.Publish, (entityName, crudOp, {}, entityId, data)->
+
+			clientA.on Messages.Publish, (entityName, crudOp, {}, eventParams)->
+				[entityId, data] = eventParams
 				expect(data).toEqual(testObj2)
 				expect(testsDone).toEqual(3)
 				done()
-			clientB.emit Messages.Operation,"Tester",[CRUD.update], {}, 42, testObj2, (err)->
+
+			clientB.emit Messages.Operation,"Tester", CRUD.update, {}, 42, testObj2, (err)->
 				expect(err).toBeNull()
 
 	xit "checks if the passed controller file exists"
