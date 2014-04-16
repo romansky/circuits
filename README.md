@@ -1,5 +1,6 @@
-circuits [![Build Status](https://travis-ci.org/romansky/circuits.png)](https://travis-ci.org/romansky/circuits)
+Still Work In Progress! - circuits [![Build Status](https://travis-ci.org/romansky/circuits.png)](https://travis-ci.org/romansky/circuits)
 ====
+
 
 Minimalistic Real-Time Backend For Node.js
 
