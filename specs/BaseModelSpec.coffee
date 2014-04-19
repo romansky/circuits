@@ -88,7 +88,16 @@ describe "backbone integration",->
 				expect(t2.get("something")).toEqual("other other")
 				done()
 
+	it "throws when first parameter is not a socket.io client",->
 
+		class Bad extends BaseModel
+
+		good = false
+		try Bad({imnot: "sioc"})
+		catch err
+			good = true
+
+		expect(good).toBeTruthy()
 
 
 
