@@ -9,7 +9,7 @@ exports.BaseTypedModel = class BaseTypedModel extends TypedModel
 	sioc : null
 
 	constructor : (@sioc, args...)->
-		if not (@sioc.constructor is Socket)
+		if @sioc and not (@sioc.constructor is Socket)
 			msg = "first argument needs to be instance of Socket.io-client, model:#{@constructor.name}"
 			logr.error msg, Error(msg)
 			throw msg
