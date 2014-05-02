@@ -4,7 +4,7 @@
 {CRUD} = require 'node-acl'
 
 sio = require 'socket.io'
-logr = require('node-logr').getLogger(__filename)
+logr = require('node-logr').getLogger(__filename,"circuits")
 path = require 'path'
 
 exports.Server = class Server

@@ -1,6 +1,6 @@
 {CRUD} = require 'node-acl'
 
-logr = require('node-logr').getLogger(__filename)
+logr = require('node-logr').getLogger(__filename,"circuits")
 
 exports.Listeners = class Listeners
 

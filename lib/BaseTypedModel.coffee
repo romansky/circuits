@@ -2,7 +2,7 @@
 BackboneMethods = require './BackboneMethods'
 Socket = require('socket.io-client').Socket
 
-logr = require('node-logr').getLogger(__filename)
+logr = require('node-logr').getLogger(__filename,"circuits")
 
 exports.BaseTypedModel = class BaseTypedModel extends TypedModel
 

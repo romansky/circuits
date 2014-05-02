@@ -1,7 +1,7 @@
 {Messages} = require './Services'
 Backbone = require 'backbone'
 
-logr = require('node-logr').getLogger(__filename)
+logr = require('node-logr').getLogger(__filename,"circuits")
 
 exports.registerSync = (params, callback = (->), model, sioc)->
 	modelName = model.constructor.name

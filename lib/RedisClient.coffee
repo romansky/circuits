@@ -1,5 +1,5 @@
 redis = require 'redis'
-logr = require('node-logr').getLogger(__filename)
+logr = require('node-logr').getLogger(__filename,"circuits")
 
 exports.RedisClient = class RedisClient
 

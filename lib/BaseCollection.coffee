@@ -2,7 +2,7 @@ backbone = require 'backbone'
 BackboneMethods = require './BackboneMethods'
 Socket = require('socket.io-client').Socket
 
-logr = require('node-logr').getLogger(__filename)
+logr = require('node-logr').getLogger(__filename,"circuits")
 
 exports.BaseCollection = class BaseCollection extends backbone.Collection
 
