@@ -1,6 +1,6 @@
 {
     "name" : "circuits",
-    "version" : "0.1.9",
+    "version" : "0.1.10",
     "description" : "Node.js RESTful socket.io router - Minimalistic Style",
     "main" : "./index.js",
     "keywords" : [
@@ -11,6 +11,7 @@
         "url" : "https://github.com/romansky/circuits"
     },
     "dependencies" : {
+	"node-uuid": "^1.4.1",
         "node-logr" : ">= 0.5.*",
     	"redis" : "latest",
     	"node-acl" : "0.0.2",

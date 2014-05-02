@@ -6,6 +6,7 @@
 sio = require 'socket.io'
 logr = require('node-logr').getLogger(__filename,"circuits")
 path = require 'path'
+UUID = require 'node-uuid'
 
 exports.Server = class Server
 
@@ -68,9 +69,25 @@ exports.Server = class Server
 	getController  : (cn)=>
 		@controllerResolver(cn)
 		
-	
+	makeTokenForCookie : (cookie)=>
+		uuid = UUID.v4()
+		@redis.set @_tmpTokenStoreKey(uuid), cookie, "EX", 5, ( ()-> )
+		uuid
+
+	genCookieFromToken : (token,cb)=>
+		@redis.get @_tmpTokenStoreKey(token), (err, value)=>
+			if err 
+				logr.error("could not get cookie for token:#{token}",err)
+				cb("could not get cookie for token:#{token}", null)
+			else
+				cb(null, value)
+
+		@redis.del @_tmpTokenStoreKey(token)
 
 	### PRIVATE ###
+
+
+	_tmpTokenStoreKey : (token)-> "circuits:tokenstore:#{token}"
 
 	_recieveEvent : (entityName, crudOp, params, eventParams)=>
 		# id = 0 is fallback for collections 

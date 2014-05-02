@@ -119,3 +119,13 @@ describe "Server Specs",->
 	xit "cleans up after disconnection of a client"
 
 		
+	it "stores a cookie in the tmp store via provided token and retrieves it",(done)->
+		cookie = "fake-cookie"
+		server = helper.getServerInstance()
+		token = server.makeTokenForCookie(cookie)
+		server.genCookieFromToken token, (err, res)->
+			expect(err).toBeNull()
+			expect(res).toEqual(cookie)
+			server.genCookieFromToken token, (err, res)->
+				expect(res).toBeNull()
+				done()
