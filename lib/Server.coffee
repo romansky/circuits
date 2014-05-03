@@ -69,16 +69,16 @@ exports.Server = class Server
 	getController  : (cn)=>
 		@controllerResolver(cn)
 		
-	makeTokenForCookie : (cookie)=>
+	makeTokenForUserID : (userID)=>
 		uuid = UUID.v4()
-		@redis.set @_tmpTokenStoreKey(uuid), cookie, "EX", 5, ( ()-> )
+		@redis.set @_tmpTokenStoreKey(uuid), userID, "EX", 60 * 60 * 24, ( ()-> )
 		uuid
 
-	genCookieFromToken : (token,cb)=>
+	genUserIDFromToken : (token,cb)=>
 		@redis.get @_tmpTokenStoreKey(token), (err, value)=>
 			if err 
-				logr.error("could not get cookie for token:#{token}",err)
-				cb("could not get cookie for token:#{token}", null)
+				logr.error("could not get userID for token:#{token}",err)
+				cb("could not get userID for token:#{token}", null)
 			else
 				cb(null, value)
 
@@ -114,6 +114,12 @@ exports.Server = class Server
 	_setupSocketIO : ()=>
 		@sio = sio(@httpServer)
 		@connectedSockets = []
+
+		@sio.set 'authorization', (handshakeData, cb)=>
+			cb(null, true)
+			@genUserIDFromToken handshakeData._query.token, (err, sessionId)->
+				console.log handshakeData.headers.cookie				
+
 		@sio.on 'connection', (socket)=>
 			@connectedSockets.push socket
 			# creates personal room for this socket
