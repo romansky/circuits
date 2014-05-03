@@ -82,7 +82,6 @@ exports.Server = class Server
 			else
 				cb(null, value)
 
-		@redis.del @_tmpTokenStoreKey(token)
 
 	### PRIVATE ###
 
@@ -111,16 +110,22 @@ exports.Server = class Server
 			while (cb = ( @publishReadyCBs || [] ).shift() )
 				cb()
 
+	_getCookieValue : (cookies, cookieName)->
+		found = cookies?.split(";").map((s)-> s.trim().split("=") ).filter((v)-> v[0] == cookieName)
+		found?[0]?[1]
+
 	_setupSocketIO : ()=>
 		@sio = sio(@httpServer)
 		@connectedSockets = []
 
 		@sio.set 'authorization', (handshakeData, cb)=>
 			cb(null, true)
-			@genUserIDFromToken handshakeData._query.token, (err, sessionId)->
-				console.log handshakeData.headers.cookie				
+			token = @_getCookieValue(handshakeData.headers.cookie, "circuits-token")
+			@genUserIDFromToken token, (err, userID)=>
+				if not err then handshakeData.userID = userID
 
 		@sio.on 'connection', (socket)=>
+			# console.log socket.request
 			@connectedSockets.push socket
 			# creates personal room for this socket
 			socket.join(socket.id)

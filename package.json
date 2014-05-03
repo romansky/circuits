@@ -1,6 +1,6 @@
 {
     "name" : "circuits",
-    "version" : "0.1.10",
+    "version" : "0.1.11",
     "description" : "Node.js RESTful socket.io router - Minimalistic Style",
     "main" : "./index.js",
     "keywords" : [

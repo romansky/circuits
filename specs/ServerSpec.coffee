@@ -114,10 +114,8 @@ describe "Server Specs",->
 			clientB.emit Messages.Operation,"Tester", CRUD.update, {}, 42, testObj2, (err)->
 				expect(err).toBeNull()
 
-	xit "checks if the passed controller file exists"
-	xit "allows creating express server"
+	xit "checks if the passd controller file exists"
 	xit "cleans up after disconnection of a client"
-
 		
 	it "stores a userID in the tmp store via provided token and retrieves it",(done)->
 		userID = "fake-user-id"
@@ -126,6 +124,4 @@ describe "Server Specs",->
 		server.genUserIDFromToken token, (err, res)->
 			expect(err).toBeNull()
 			expect(res).toEqual(userID)
-			server.genUserIDFromToken token, (err, res)->
-				expect(res).toBeNull()
-				done()
+			done()
