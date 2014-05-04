@@ -18,11 +18,11 @@
     	"socket.io-client" : "1.*",
     	"socket.io" : "1.*",
         "backbone-typed" : "0.1.*",
-        "backbone" : "1.1.*"
+        "backbone" : "1.1.*",
+        "coffee-script": "latest"
     },
     "devDependencies" : {
-	   "jasmine-node": "1.14.03",
-	   "coffee-script": "latest"
+	   "jasmine-node": "1.14.03"
     },
     "scripts" : {
 	"test": "cake test"

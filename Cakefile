@@ -8,7 +8,6 @@ handleExecErrors = (err, stdout, stderr)->
         if err or stderr then process.exit 1
 
 task 'build',->
-	exec "coffee -c index", handleExecErrors
 
 
 option '-n', '--name [NAME]', 'tests name pattern matching'
