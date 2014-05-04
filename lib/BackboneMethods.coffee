@@ -1,4 +1,4 @@
-{Messages} = require './Services'
+{Messages} = require './Messages'
 Backbone = require 'backbone'
 
 logr = require('node-logr').getLogger(__filename,"circuits")

@@ -2,6 +2,10 @@
 
 exports.ACL = class ACL
 
+	@AllowAll : {
+		verify : -> true
+	}
+
 	###
 	ACL
 	=======

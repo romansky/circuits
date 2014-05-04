@@ -1,30 +1,26 @@
 {CRUD} = require 'node-acl'
 logr = require('node-logr').getLogger(__filename,"circuits")
-
-exports.Messages = {
-	"Register"
-	"UnRegister"
-	"Operation"
-	"Publish"
-}
+{Messages} = require './Messages'
 
 
 exports.Services = {
 
 	### 
 	@param server Server - an instance of the server
+	@param userId String
 	@param entityName String - model name
 	@param params Map[String,String]
 	@param entityId Int - the entity ID
 	@param callback Function[Error, data] - a callback function to be called with the result or error 
 	###
-	Register : (clientId, server, entityName, params, entityId, callback) ->
+	Register : (clientId, userId, server, entityName, params, entityId, callback) ->
 		controller = server.getController(entityName)
 		controller.read(params, entityId, callback)
 		server.listeners.add(clientId,entityName, [ 'update' ], entityId)
 		
 	### 
 	@param clientId String 
+	@param userId String
 	@param server Server - an instance of the server 
 	@param entityName String - model name 
 	@param crudOps node-acl.CRUD - crud operations 
@@ -32,7 +28,7 @@ exports.Services = {
 	@param opParams List[Object] - operation specific parameters 
 	@param callback Function[Error, data] - a callback function to be called with the result or error 
 	###
-	Operation : (clientId, server, entityName, crudOp, params, opPrams... , callback) ->
+	Operation : (clientId, userId, server, entityName, crudOp, params, opPrams... , callback) ->
 		controller = server.getController(entityName)
 		logr.debug "op:#{crudOp} controller:#{entityName}"
 

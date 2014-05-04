@@ -1,5 +1,6 @@
 {CRUD} = require 'node-acl'
-{Services,Messages} = require '../lib/Services'
+{Services} = require '../lib/Services'
+{Messages} = require '../lib/Messages'
 helper = require './helper'
 
 describe "Server Specs",->
@@ -30,11 +31,12 @@ describe "Server Specs",->
 	it "registers request recieved and intercepted by services",(done)->
 		acl = [ role : "public", model: "tester", crudOps : [CRUD.read] ]
 		testObj = { a: "a", b: "b" }
-		spy = spyOn(Services, Messages.Register).andCallFake (a,b,c,d,e,cb)->
+		spy = spyOn(Services, Messages.Register).andCallFake (a,b,c,d,e,f,cb)->
 			cb(null, testObj)
 		server = helper.getServerInstance()
 		client = helper.getClientInstance()
 		client.on 'connect', ->
+			console.log "222"
 			client.emit Messages.Register, "tester",{}, 1, (err, data)->
 				expect(data).toEqual(testObj)
 				done()

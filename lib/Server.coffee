@@ -1,7 +1,9 @@
 {RedisClient} = require './RedisClient'
-{Services,Messages} = require './Services'
+{Services} = require './Services'
+{Messages} = require './Messages'
 {Listeners} = require './Listeners'
 {CRUD} = require 'node-acl'
+{ACL} = require './ACL'
 
 sio = require 'socket.io'
 logr = require('node-logr').getLogger(__filename,"circuits")
@@ -22,6 +24,8 @@ exports.Server = class Server
 	sio : null
 	### @type List<Socket> ###
 	connectedSockets : null
+	### @type ACL ###
+	acl : null
 
 	### PUBLIC ###
 
@@ -29,11 +33,12 @@ exports.Server = class Server
 	@param httpServer Int
 	@param redisDB Int
 	@param controllerResolver Function[String,Map[String,Any]]
+	@param acl ACL
 	@param redisHost String
 	@param redisPort Int
 	@param circuitChannel String
 	###
-	constructor : (@httpServer, @redisDB, @controllerResolver = (()-> null) , @redisHost = "127.0.0.1", @redisPort = 6379, @circuitChannel = "circuit-channel") ->
+	constructor : (@httpServer, @redisDB, @controllerResolver = (()-> null) , @acl = ACL.AllowAll, @redisHost = "127.0.0.1", @redisPort = 6379, @circuitChannel = "circuit-channel") ->
 
 		@listeners = new Listeners()
 
@@ -118,14 +123,7 @@ exports.Server = class Server
 		@sio = sio(@httpServer)
 		@connectedSockets = []
 
-		@sio.set 'authorization', (handshakeData, cb)=>
-			cb(null, true)
-			token = @_getCookieValue(handshakeData.headers.cookie, "circuits-token")
-			@genUserIDFromToken token, (err, userID)=>
-				if not err then handshakeData.userID = userID
-
 		@sio.on 'connection', (socket)=>
-			# console.log socket.request
 			@connectedSockets.push socket
 			# creates personal room for this socket
 			socket.join(socket.id)
@@ -135,14 +133,22 @@ exports.Server = class Server
 			socket.clientAddress = socket.request.connection.remoteAddress
 			logr.info "client connecting:#{socket.id} ip:#{socket.clientAddress}"
 			server = @
-			bindMessage = (message)->
-				socket.on message, (args...)->
-					# pop last arg because its null
-					cb = args.pop()
-					logr.debug "received message:#{message} args:#{JSON.stringify(args)}"
-					Services[message](socket.id,server,args...,cb)
-			bindMessage(message) for message of Messages
+			token = @_getCookieValue(socket.request.headers.cookie, "circuits-token")
+			@genUserIDFromToken token, (err, userID)->
+				if err then logr.error "failed to get userID for token:#{err}"
+				# finish by binding all message types onto the socket
+				bindMessage(socket, message, userID, server) for message of Messages
 
 			socket.on "disconnect",=>
 				logr.info "client disconnecting:#{socket.id} ip:#{socket.clientAddress}"
+				@connectedSockets.splice(@connectedSockets.indexOf(socket),1)
 
+
+
+bindMessage = (socket, message,userID, server)->
+	console.log "binding #{message} #{userID}"
+	socket.on message, (args...)->
+		# pop last arg because its null
+		cb = args.pop()
+		logr.debug "received message:#{message} args:#{JSON.stringify(args)}"
+		Services[message](socket.id, userID, server, args..., cb)
