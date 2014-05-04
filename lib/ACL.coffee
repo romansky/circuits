@@ -55,7 +55,7 @@ exports.ACL = class ACL
 	###
 
 	#param rules
-	constructor : (@rules, @userGroupsResolver, @optionalCheck)->
+	constructor : (@rules, @userGroupsResolver, @optionalCheck = ( (args...,cb)-> cb(null, true)) )->
 
 
 	verify : (userID, modelName, modelID, crudOp, cb)=>
