@@ -1,4 +1,4 @@
-{CRUD} = require 'node-acl'
+{CRUD} = require './CRUD'
 logr = require('node-logr').getLogger(__filename,"circuits")
 {Messages} = require './Messages'
 
@@ -26,7 +26,7 @@ exports.Services = {
 	@param userId String
 	@param server Server - an instance of the server 
 	@param entityName String - model name 
-	@param crudOps node-acl.CRUD - crud operations 
+	@param crudOps CRUD - crud operations 
 	@param params Map[String,String]
 	@param opParams List[Object] - operation specific parameters 
 	@param callback Function[Error, data] - a callback function to be called with the result or error 
@@ -54,9 +54,7 @@ exports.Services = {
 
 			when CRUD.update
 				[entityId, data] = opPrams
-
 				server.acl.verify userId, entityName, entityId, CRUD.create, (err,isAllowed)->
-
 					if isAllowed
 						controller.update(params, entityId, data, callback)
 						# TODO: exclude this server from recipients of events,

@@ -1,5 +1,5 @@
 {Listeners} = require '../lib/Listeners'
-{CRUD} = require 'node-acl'
+{CRUD} = require '../lib/CRUD'
 
 describe "Listeners Spec",->
 

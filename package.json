@@ -14,7 +14,6 @@
 	"node-uuid": "^1.4.1",
         "node-logr" : ">= 0.5.*",
     	"redis" : "latest",
-    	"node-acl" : "0.0.2",
     	"socket.io-client" : "1.*",
     	"socket.io" : "1.*",
         "backbone-typed" : "0.1.*",

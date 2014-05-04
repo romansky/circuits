@@ -1,4 +1,4 @@
-{CRUD} = require 'node-acl'
+{CRUD} = require './CRUD'
 
 logr = require('node-logr').getLogger(__filename,"circuits")
 
@@ -20,8 +20,9 @@ exports.Listeners = class Listeners
 	###
 	add : (id, entityName, crudOps, entityId)=>
 		allowed = [CRUD.update, CRUD.delete, CRUD.create, CRUD.patch]
+
 		if crudOps.filter((co)-> allowed.indexOf(co) == -1).length > 0
-			logr.notice "client #{id} triend to register crudOps:#{crudOps.toString()} entity:#{entityName} eId:#{entityId}"
+			logr.notice "client #{id} trying to register crudOps:#{crudOps} entity:#{entityName} eId:#{entityId}"
 			return false
 
 		@listeners[ entityName ] ?= {}

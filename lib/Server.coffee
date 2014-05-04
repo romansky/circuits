@@ -2,7 +2,7 @@
 {Services} = require './Services'
 {Messages} = require './Messages'
 {Listeners} = require './Listeners'
-{CRUD} = require 'node-acl'
+{CRUD} = require './CRUD'
 {ACL} = require './ACL'
 
 sio = require 'socket.io'

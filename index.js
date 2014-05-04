@@ -4,6 +4,6 @@ exports.Server = require("./lib/Server").Server;
 
 exports.Messages = require('./lib/Services').Messages;
 
-exports.CRUD = require('node-acl').CRUD;
+exports.CRUD = require('./lib/CRUD').CRUD;
 
-exports.ACL = require("./lib/ACL");
+exports.ACL = require("./lib/ACL").ACL;
