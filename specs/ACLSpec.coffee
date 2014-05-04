@@ -2,6 +2,9 @@
 
 describe "ACL spec",->
 
+	beforeEach ->
+		console.log "==========running new test( #{@suite.description} - #{@description} )=========="
+
 	it "allows access by model and crud op for public group" ,(done)->
 		checkedOptional = false
 		rules = {

@@ -6,7 +6,7 @@ helper = require './helper'
 describe "Server Specs",->
 
 	beforeEach ->
-		console.log "==========running new test=========="
+		console.log "==========running new test( #{@suite.description} - #{@description} )=========="
 
 	afterEach ->
 		helper.envCleaup()
@@ -36,7 +36,6 @@ describe "Server Specs",->
 		server = helper.getServerInstance()
 		client = helper.getClientInstance()
 		client.on 'connect', ->
-			console.log "222"
 			client.emit Messages.Register, "tester",{}, 1, (err, data)->
 				expect(data).toEqual(testObj)
 				done()

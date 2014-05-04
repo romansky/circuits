@@ -14,9 +14,12 @@ exports.Services = {
 	@param callback Function[Error, data] - a callback function to be called with the result or error 
 	###
 	Register : (clientId, userId, server, entityName, params, entityId, callback) ->
-		controller = server.getController(entityName)
-		controller.read(params, entityId, callback)
-		server.listeners.add(clientId,entityName, [ 'update' ], entityId)
+		logr.debug "registring client:#{clientId} user:#{userId} entityName:#{entityName} entityId:#{entityId}"
+		server.acl.verify userId, entityName, entityId, CRUD.read, (err, isAllowed)->
+			if isAllowed
+				server.getController(entityName).read(params, entityId, callback)
+				server.listeners.add(clientId,entityName, [ 'update' ], entityId)
+			else callback("not allowed")
 		
 	### 
 	@param clientId String 
@@ -29,24 +32,46 @@ exports.Services = {
 	@param callback Function[Error, data] - a callback function to be called with the result or error 
 	###
 	Operation : (clientId, userId, server, entityName, crudOp, params, opPrams... , callback) ->
+		logr.debug "op client:#{clientId} user:#{userId} entityName:#{entityName} crudOp:#{crudOp} params:#{JSON.stringify(params)}"
 		controller = server.getController(entityName)
-		logr.debug "op:#{crudOp} controller:#{entityName}"
+
 
 		switch crudOp
+
 			when CRUD.create
 				[data] = opPrams
-				controller.create(params, data, callback)
+				server.acl.verify userId, entityName, null, CRUD.create, (err,isAllowed)->
+					if isAllowed then controller.create(params, data, callback)
+					else 
+						callback(new Error("ACL:" + err))
+
 			when CRUD.read 
 				[entityId] = opPrams
-				controller.read(params, entityId, callback)
+				server.acl.verify userId, entityName, entityId, CRUD.create, (err,isAllowed)->
+					if isAllowed then controller.read(params, entityId, callback)
+					else 
+						callback(new Error("ACL:" + err))
+
 			when CRUD.update
 				[entityId, data] = opPrams
-				controller.update(params, entityId, data, callback)
-				# TODO: exclude this server from recipients of events, also the specific client from later distribution
-				server.publishEvent(entityName, crudOp, params, entityId, data)
+
+				server.acl.verify userId, entityName, entityId, CRUD.create, (err,isAllowed)->
+
+					if isAllowed
+						controller.update(params, entityId, data, callback)
+						# TODO: exclude this server from recipients of events,
+						# also the specific client from later distribution
+						server.publishEvent(entityName, crudOp, params, entityId, data)
+					else 
+						callback(new Error("ACL:" + err))
+				
 			when CRUD.delete
 				[entityId] = opPrams
-				controller.delete(params, entityId, callback)
+				server.acl.verify userId, entityName, entityId, CRUD.create, (err,isAllowed)->
+					if isAllowed then controller.delete(params, entityId, callback)
+					else 
+						callback(new Error("ACL:" + err))
+				
 			else callback(new Error("bad crud operation requested:" + crudOps))
 
 

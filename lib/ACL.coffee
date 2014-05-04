@@ -3,7 +3,7 @@
 exports.ACL = class ACL
 
 	@AllowAll : {
-		verify : -> true
+		verify : (userID, modelName, modelID, crudOp, cb)-> cb(null,true)
 	}
 
 	###

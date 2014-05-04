@@ -6,7 +6,7 @@ helper = require './helper'
 describe "backbone integration",->
 
 	beforeEach ->
-		console.log "==========running new test=========="
+		console.log "==========running new test( #{@suite.description} - #{@description} )=========="
 
 	afterEach ->
 		helper.envCleaup()

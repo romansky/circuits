@@ -127,10 +127,7 @@ exports.Server = class Server
 			@connectedSockets.push socket
 			# creates personal room for this socket
 			socket.join(socket.id)
-			# print out some debug info
-			# TODO: fix this, to include IP and port of client
-			# socket.clientAddress = socket.handshake.address.address + ":" + socket.handshake.address.port
-			socket.clientAddress = socket.request.connection.remoteAddress
+			socket.clientAddress = socket.request.connection.remoteAddress + ":" + socket.request.connection.remotePort
 			logr.info "client connecting:#{socket.id} ip:#{socket.clientAddress}"
 			server = @
 			token = @_getCookieValue(socket.request.headers.cookie, "circuits-token")
@@ -146,7 +143,6 @@ exports.Server = class Server
 
 
 bindMessage = (socket, message,userID, server)->
-	console.log "binding #{message} #{userID}"
 	socket.on message, (args...)->
 		# pop last arg because its null
 		cb = args.pop()

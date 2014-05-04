@@ -2,6 +2,10 @@
 {CRUD} = require 'node-acl'
 
 describe "Listeners Spec",->
+
+	beforeEach ->
+		console.log "==========running new test( #{@suite.description} - #{@description} )=========="
+
 	it "can add a listener ID",->
 		l = new Listeners()
 		res = l.add("12345", "blah", [CRUD.update], 10)
