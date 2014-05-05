@@ -62,12 +62,13 @@ exports.ACL = class ACL
 		allowedG = @rules?[modelName]?[crudOp]
 		if not allowedG or allowedG.length == 0 then cb("not allowed",false)
 		else
+			oc = @optionalCheck
 			if allowedG.indexOf('public') >= 0
-				@optionalCheck(userID, modelName, modelID, crudOp, cb)
+				oc(userID, modelName, modelID, crudOp, cb)
 			else
 				@userGroupsResolver userID, (err, groups)->
 					if err then cb("user not in correct group", false)
 					else
 						if ( groups.some (g)-> allowedG.indexOf(g) >= 0 )
-							@optionalCheck(userID, modelName, modelID, crudOp, cb)
+							oc(userID, modelName, modelID, crudOp, cb)
 						else cb("not allowed")
