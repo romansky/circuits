@@ -3,6 +3,12 @@ Backbone = require 'backbone'
 
 logr = require('node-logr').getLogger(__filename,"circuits")
 
+exports.constructor = (clazz, sioc)->
+	if sioc and not (sioc.constructor.name is 'Socket')
+		msg = "first argument needs to be instance of Socket.io-client, model:#{clzz.constructor.name}"
+		logr.error msg, Error(msg)
+		throw msg
+
 exports.registerSync = (params, callback = (->), model, sioc)->
 	modelName = model.constructor.name
 	logr.debug "sending registration request for model:#{modelName} id:#{model.id}"
