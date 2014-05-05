@@ -14,7 +14,7 @@ exports.Services = {
 	@param callback Function[Error, data] - a callback function to be called with the result or error 
 	###
 	Register : (clientId, userId, server, entityName, params, entityId, callback) ->
-		logr.debug "registring client:#{clientId} user:#{userId} entityName:#{entityName} entityId:#{entityId}"
+		logr.info "register entityName:#{entityName} entityId:#{entityId} client:#{clientId} user:#{userId}"
 		server.acl.verify userId, entityName, entityId, CRUD.read, (err, isAllowed)->
 			if isAllowed
 				server.getController(entityName).read(params, entityId, callback)
@@ -32,9 +32,8 @@ exports.Services = {
 	@param callback Function[Error, data] - a callback function to be called with the result or error 
 	###
 	Operation : (clientId, userId, server, entityName, crudOp, params, opPrams... , callback) ->
-		logr.debug "op client:#{clientId} user:#{userId} entityName:#{entityName} crudOp:#{crudOp} params:#{JSON.stringify(params)}"
+		logr.info "op entityName:#{entityName} crudOp:#{crudOp} params:#{JSON.stringify(params)} client:#{clientId} user:#{userId}"
 		controller = server.getController(entityName)
-
 
 		switch crudOp
 
