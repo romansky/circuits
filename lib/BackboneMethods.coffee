@@ -5,7 +5,7 @@ logr = require('node-logr').getLogger(__filename,"circuits")
 
 exports.constructor = (clazz, sioc)->
 	if sioc and not (sioc.constructor.name is 'Socket')
-		msg = "first argument needs to be instance of Socket.io-client, model:#{clzz.constructor.name}"
+		msg = "first argument needs to be instance of Socket.io-client, model:#{clazz.constructor.name}"
 		logr.error msg, Error(msg)
 		throw msg
 
@@ -41,10 +41,19 @@ exports.sync = (method, model, options, sioc)->
 		when "update" then [ model.id, model.toJSON() ]
 		when "delete" then  [ model.id ]
 
+	model.__circuits_seq ?= {}
+	key = [modelName, method, model.id || 0].join("|")
+	seq = model.__circuits_seq[key] ?= 0
+	model.__circuits_seq[key] += 1
+
 	logr.debug "sending message model:#{modelName} method:#{method} sending:#{JSON.stringify(sending)}"
 	sioc.emit Messages.Operation, modelName, method, options.params || {}, sending... , (err,res)->
 		if err
 			logr.error "error while syncing model; name:#{modelName} id:#{model.id} err: #{err}"
 			options.error(model, err)
 		else
-			options.success(res)
+			if model.__circuits_seq[key] == seq + 1
+				options.success(res)
+			else
+				logr.notice("response ignored due to out of sequence for key:#{key} seq:#{seq}")
+				options.success({})

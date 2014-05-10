@@ -100,6 +100,51 @@ describe "backbone integration",->
 		expect(good).toBeTruthy()
 
 
+	it "keeps sequence, so a request with the same time arriving out of sync is ignored",(done)->
+		class Papa extends BaseModel
+
+		serverSeq = [1,2,3,4]
+
+		checkFinished = (num)->
+			if num
+				expect(num).toEqual(4)
+				done()
+
+		sioc = helper.getClientInstance()
+
+		server = helper.getServerInstance (c)->
+
+			{
+				read : (params, id, cb)->	
+					num = serverSeq.shift()
+					setTimeout(
+						( -> cb(null, {num:num}) )
+						,10
+					)
+			}
+
+		child = new Papa(sioc,{id:5})
+
+		child.fetch {
+			success : (c,m)->
+				checkFinished(m.num)
+		}
+		child.fetch {
+			success : (c,m)-> 
+				checkFinished(m.num)
+		}
+		child.fetch {
+			success : (c,m)-> 
+				checkFinished(m.num)
+		}
+
+		child.fetch {
+			success : (c,m)-> 
+				checkFinished(m.num)
+		}
+
+		expect(true).toBeTruthy()
+
 
 
 
