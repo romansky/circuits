@@ -60,7 +60,7 @@ exports.ACL = class ACL
 
 	verify : (userID, modelName, modelID, crudOp, cb)=>
 		allowedG = @rules?[modelName]?[crudOp]
-		if not allowedG or allowedG.length == 0 then cb("not allowed",false)
+		if not allowedG or allowedG.length == 0 then cb("not allowed #{modelName}##{crudOp}",false)
 		else
 			oc = @optionalCheck
 			if allowedG.indexOf('public') >= 0
@@ -71,4 +71,4 @@ exports.ACL = class ACL
 					else
 						if ( groups.some (g)-> allowedG.indexOf(g) >= 0 )
 							oc(userID, modelName, modelID, crudOp, cb)
-						else cb("not allowed")
+						else cb("not in correct group")

@@ -50,7 +50,7 @@ exports.sync = (method, model, options, sioc)->
 	logr.debug "sending message model:#{modelName} method:#{method} sending:#{JSON.stringify(sending)}"
 	sioc.emit Messages.Operation, modelName, method, options.params || {}, sending... , (err,res)->
 		if err
-			logr.error "error while syncing model; name:#{modelName} id:#{model.id} err: #{err}"
+			logr.error "error while syncing model; name:#{modelName} id:#{model.id}",err
 			options.error(model, err)
 		else
 			if model.__circuits_seq[key] == seq + 1

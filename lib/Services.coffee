@@ -39,37 +39,47 @@ exports.Services = {
 
 			when CRUD.create
 				[data] = opPrams
-				server.acl.verify userId, entityName, null, CRUD.create, (err,isAllowed)->
+				server.acl.verify userId, entityName, null, crudOp, (err,isAllowed)->
 					if isAllowed then controller.create(params, data, callback)
 					else 
-						callback(new Error("ACL:" + err))
+						m = "ACL: #{entityName}##{crudOp}@#{userId} " + err
+						logr.notice(m)
+						callback(m)
 
-			when CRUD.read 
+			when CRUD.read
 				[entityId] = opPrams
-				server.acl.verify userId, entityName, entityId, CRUD.create, (err,isAllowed)->
+				server.acl.verify userId, entityName, entityId, crudOp, (err,isAllowed)->
 					if isAllowed then controller.read(params, entityId, callback)
-					else 
-						callback(new Error("ACL:" + err))
+					else
+						m = "ACL: #{entityName}##{crudOp}@#{userId} " + err
+						logr.notice(m)
+						callback(m)
 
 			when CRUD.update
 				[entityId, data] = opPrams
-				server.acl.verify userId, entityName, entityId, CRUD.create, (err,isAllowed)->
+				server.acl.verify userId, entityName, entityId, crudOp, (err,isAllowed)->
 					if isAllowed
 						controller.update(params, entityId, data, callback)
 						# TODO: exclude this server from recipients of events,
 						# also the specific client from later distribution
 						server.publishEvent(entityName, crudOp, params, entityId, data)
 					else 
-						callback(new Error("ACL:" + err))
+						m = "ACL: #{entityName}##{crudOp}@#{userId} " + err
+						logr.notice(m)
+						callback(m)
 				
 			when CRUD.delete
 				[entityId] = opPrams
-				server.acl.verify userId, entityName, entityId, CRUD.create, (err,isAllowed)->
+				server.acl.verify userId, entityName, entityId, crudOp, (err,isAllowed)->
 					if isAllowed then controller.delete(params, entityId, callback)
 					else 
-						callback(new Error("ACL:" + err))
+						m = "ACL: #{entityName}##{crudOp}@#{userId} " + err
+						logr.notice(m)
+						callback(m)
 				
-			else callback(new Error("bad crud operation requested:" + crudOps))
+			else
+				logr.notice("bad crud operation requested:" + crudOps) 
+				callback("bad crud operation requested:" + crudOps)
 
 
 	UnRegister : ()->
