@@ -8,9 +8,13 @@ exports.BaseTypedModel = class BaseTypedModel extends TypedModel
 
 	sioc : null
 
-	constructor : (@sioc, args...)->
-		BackboneMethods.constructor @, sioc
-		super(args...)
+	constructor : (arg,args...)->
+		if args?[0]?.collection
+			BackboneMethods.constructor @, ( @sioc = args[0].collection.sioc )
+			super(arg, args...)
+		else
+			BackboneMethods.constructor @, ( @sioc = arg )
+			super(args...)
 
 	registerSync : (params, callback)=>
 		BackboneMethods.registerSync params, callback, @, @sioc

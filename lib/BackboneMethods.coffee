@@ -4,6 +4,7 @@ Backbone = require 'backbone'
 logr = require('node-logr').getLogger(__filename,"circuits")
 
 exports.constructor = (clazz, sioc)->
+	# console.log clazz
 	if sioc and not (sioc.constructor.name is 'Socket')
 		msg = "first argument needs to be instance of Socket.io-client, model:#{clazz.constructor.name}"
 		logr.error msg, Error(msg)

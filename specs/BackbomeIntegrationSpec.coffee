@@ -1,4 +1,5 @@
 {BaseModel} = require '../lib/BaseModel'
+{BaseCollection} = require '../lib/BaseCollection'
 {BaseTypedModel} = require '../lib/BaseTypedModel'
 helper = require './helper'
 
@@ -147,6 +148,13 @@ describe "backbone integration",->
 
 
 
+	it "needs to use the collections sioc when constructed via a collection",->
+		class M extends BaseModel
+		class C extends BaseCollection
+			model : M
+
+		c = new C(null, [{z:1},{z:2},{z:3}])
+		expect(c.length).toEqual(3)
 
 
 	
