@@ -106,7 +106,7 @@ exports.Server = class Server
 
 	_registerPubsub : =>
 		@redisSub.on "message", (channel, message)=>
-			logr.debug "pubsub recieved ch:#{channel} msg:#{message}"
+			logr.debug "pubsub #{channel} #{message}"
 			if channel == @circuitChannel
 				m = JSON.parse(message)
 				@_recieveEvent m.entityName, m.crudOp, m.params, m.eventParams
@@ -128,7 +128,7 @@ exports.Server = class Server
 			# creates personal room for this socket
 			socket.join(socket.id)
 			socket.clientAddress = socket.request.connection.remoteAddress + ":" + socket.request.connection.remotePort
-			logr.info "client connecting:#{socket.id} ip:#{socket.clientAddress}"
+			logr.info "connecting #{socket.id} #{socket.clientAddress}"
 			server = @
 			token = @_getCookieValue(socket.request.headers.cookie, "circuits-token")
 			@genUserIDFromToken token, (err, userID)->
@@ -137,7 +137,7 @@ exports.Server = class Server
 				bindMessage(socket, message, userID, server) for message of Messages
 
 			socket.on "disconnect",=>
-				logr.info "client disconnecting:#{socket.id} ip:#{socket.clientAddress}"
+				logr.info "disconnecting #{socket.id} #{socket.clientAddress}"
 				@connectedSockets.splice(@connectedSockets.indexOf(socket),1)
 
 
@@ -146,5 +146,5 @@ bindMessage = (socket, message,userID, server)->
 	socket.on message, (args...)->
 		# pop last arg because its null
 		cb = args.pop()
-		logr.debug "received message:#{message} args:#{JSON.stringify(args)}"
+		logr.debug "message #{message} #{JSON.stringify(args)}"
 		Services[message](socket.id, userID, server, args..., cb)
