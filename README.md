@@ -120,7 +120,7 @@ name | type | description
 `controller+crud groups` | `function(userID, callback = function(err, groups))` | function that returns groups for a given user ID
 `optional check` | `function(userID, model, modelId, crudOp, callback = function(message,boolean)` | an optional check for special cases were you want to enforce a finer grained ACL, for example for when only a creater of a resource is only allowed to do a write operation on that model..
 
-example of a group 
+example of a controller+crud group rules
 
 	{
 		"MyModel" : {
