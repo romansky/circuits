@@ -71,10 +71,10 @@ arguments
 
 name | type | description
 -----|------|------------
-`controller name` | String | the controller to dispatch this message to
+`controller name` | `String` | the controller to dispatch this message to
 `crudOp` | `circuits.CRUD.{create,read..}` | the crud operation
-`params` | Object | parameters to be passed
-`operation params` | Object* | depending on the CRUD operation, a set of required fields
+`params` | `Object` | parameters to be passed
+`operation params` | `Object*` | depending on the CRUD operation, a set of required fields
 
 required `operation params` for the different CRUD operations
 
