@@ -53,13 +53,13 @@ Example using Circuits with Express framework
 
 `new circuits.Server( httpServer, controllerResolver, [acl, redisHost, redisDB, redis, redisPort, circuitChannel] )`
 
-`httpServer` an instance of `require('http').Server`
-`controllerResolver` a function that returns an object with mapping to CRUD operation for provided controller name
-`acl` the ACL object, if none provided it allowes everything
-`redisHost` IP address of your redis (default is "127.0.0.1")
-`redisDB` redis db to use (default is 10 )
-`redisPort` redis port (deault is 6379)
-`circuitChannel` name space for communication between Circuits instances
+ - `httpServer` instance of `require('http').Server`
+ - `controllerResolver` function that returns an object with mapping to CRUD operation for provided controller name
+ - `acl` the ACL object, if none provided it allowes everything
+ - `redisHost` IP address of your redis (default is "127.0.0.1")
+ - `redisDB` redis db to use (default is 10 )
+ - `redisPort` redis port (deault is 6379)
+ - `circuitChannel` name space for communication between Circuits instances
 
 #### messages
 
