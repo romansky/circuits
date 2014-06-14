@@ -12,33 +12,34 @@ install using npm
 
 Basic client server example [source](https://github.com/romansky/circuits/blob/master/examples/simple.coffee)
 
-	# port to listen to
-	testPort = 8001
-	# create a server
-	httpServer = http.Server()
-	# instantiate a Circuits server with a controller router
-	server = new Server httpServer, (controller)->
-		switch controller
-			# match against the requested router to a specific one
-			# every router needs to implement the CRUD operation 
-			# it needs to support
-			when 'echo' then {
-					"read" : (message, id, cb)-> 
-						# the first argument for the callback is 
-						cb(null,message)
-				}
+```coffee
+# port to listen to
+testPort = 8001
+# create a server
+httpServer = http.Server()
+# instantiate a Circuits server with a controller router
+server = new Server httpServer, (controller)->
+	switch controller
+		# match against the requested router to a specific one
+		# every router needs to implement the CRUD operation 
+		# it needs to support
+		when 'echo' then {
+				"read" : (message, id, cb)-> 
+					# the first argument for the callback is 
+					cb(null,message)
+			}
 
 
-	httpServer.listen testPort
+httpServer.listen testPort
 
-	client = sioc.connect("http://localhost:#{testPort}")
+client = sioc.connect("http://localhost:#{testPort}")
 
-	client.on 'connect', ->
-		client.emit Operation, 'echo', CRUD.read, 'any bats in here?',(err, data)->
-			if (data == 'any bats in here?')
-				console.log 'No bats here I guess..'
-				process.exit()
-
+client.on 'connect', ->
+	client.emit Operation, 'echo', CRUD.read, 'any bats in here?',(err, data)->
+		if (data == 'any bats in here?')
+			console.log 'No bats here I guess..'
+			process.exit()
+```
 
 ToDo:
 Example using Circuits with a Backbone model
@@ -122,20 +123,22 @@ name | type | description
 
 example of a controller+crud group rules
 
-	{
-		"MyModel" : {
-			"create" : ["public"],
-			"read" : ["public"],
-			"update" : ["users"],
-			"delete" : []
-		},
-		"SecretModel" : {
-			"create" : ["users"],
-			"read" : ["users"],
-			"update" : ["users"],
-			"delete" : ["users"]
-		}
+```javascript
+{
+	"MyModel" : {
+		"create" : ["public"],
+		"read" : ["public"],
+		"update" : ["users"],
+		"delete" : []
+	},
+	"SecretModel" : {
+		"create" : ["users"],
+		"read" : ["users"],
+		"update" : ["users"],
+		"delete" : ["users"]
 	}
+}
+```
 
 is simply an object mapping controllers to respective allowed crud operations
 
