@@ -70,6 +70,7 @@ the `Operation` message is a request for a message to be dispatched to respectiv
 arguments
 
 name | type | description
+-----|------|------------
 `controller name` | String | the controller to dispatch this message to
 `crudOp` | `circuits.CRUD.{create,read..}` | the crud operation
 `params` | Object | parameters to be passed
@@ -80,22 +81,26 @@ required `operation params` for the different CRUD operations
 `CRUD.create`
 
 name | type | description
+-----|------|------------
 `data` | `Object` | the object to be created
 
 `CRUD.read`
 
 name | type | description
+-----|------|------------
 `id` | `String` | resource id
 
 `CRUD.update`
 
 name | type | description
+-----|------|------------
 `id` | `String` | resource id
 `data` | `Object` | the object to update with
 
 `CRUD.delete`
 
 name | type | description
+-----|------|------------
 `id` | `String` | resource id
 
 #### CRUD operations
@@ -110,6 +115,7 @@ is simply a map of String => String of
 `circuits.ACL` constructor arguments
 
 name | type | description
+-----|------|------------
 `rules` | `Object` | mapping of controllers to allowed crud operations and respective user groups
 `controller+crud groups` | `function(userID, callback = function(err, groups))` | function that returns groups for a given user ID
 `optional check` | `function(userID, model, modelId, crudOp, callback = function(message,boolean)` | an optional check for special cases were you want to enforce a finer grained ACL, for example for when only a creater of a resource is only allowed to do a write operation on that model..
