@@ -1,4 +1,4 @@
-Still Work In Progress! - circuits [![Build Status](https://travis-ci.org/romansky/circuits.png)](https://travis-ci.org/romansky/circuits)
+Still Work In Progress! - circuits [![Build Status](https://travis-ci.org/uniformlyrandom/circuits.png)](https://travis-ci.org/uniformlyrandom/circuits)
 ====
 [![NPM](https://nodei.co/npm/circuits.png?downloads=true)](https://nodei.co/npm/circuits/)
 
@@ -10,7 +10,7 @@ install using npm
 
 	npm install circuits
 
-Basic client server example [source](https://github.com/romansky/circuits/blob/master/examples/simple.coffee)
+Basic client server example [source](https://github.com/uniformlyrandom/circuits/blob/master/examples/simple.coffee)
 
 	# port to listen to
 	testPort = 8001
