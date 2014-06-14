@@ -1,6 +1,6 @@
-Still Work In Progress! - circuits [![Build Status](https://travis-ci.org/romansky/circuits.png)](https://travis-ci.org/romansky/circuits)
+circuits 
 ====
-[![NPM](https://nodei.co/npm/circuits.png?downloads=true)](https://nodei.co/npm/circuits/)
+[![Build Status](https://travis-ci.org/romansky/circuits.png)](https://travis-ci.org/romansky/circuits)
 
 A simple socket-io framework for client and server communcation around CRUD operations
 
