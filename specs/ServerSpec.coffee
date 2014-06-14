@@ -1,5 +1,5 @@
 {CRUD} = require '../lib/CRUD'
-{Services} = require '../lib/Services'
+Services = require '../lib/Services'
 {Messages} = require '../lib/Messages'
 helper = require './helper'
 

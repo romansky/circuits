@@ -4,7 +4,6 @@ http = require 'http'
 sioc = require 'socket.io-client'
 
 
-redisPort = 15
 __server = null
 __httpServer = null
 
@@ -15,7 +14,7 @@ __auxClients = []
 
 exports.getServerInstance = (contollerHandler)->	
 	__httpServer = http.Server()
-	__server = new Server(__httpServer, redisPort, contollerHandler)	
+	__server = new Server(__httpServer, contollerHandler)	
 	__httpServer.listen __testPort
 	__server
 
@@ -29,11 +28,11 @@ exports.getClientInstance = (isAux = false)->
 
 exports.envCleaup = ->
 	RedisClient.destroy(true)
+	__server?.redis.flushdb()
 	__server?.shutdown()
 	__client?.disconnect()
 	__auxClients.forEach (c)-> c.disconnect()
 	__server = null
 	__client = null
 	__auxClients = []
-	RedisClient.get(redisPort).flushdb()
 	__testPort++

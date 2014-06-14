@@ -1,5 +1,5 @@
 {RedisClient} = require './RedisClient'
-{Services} = require './Services'
+Services = require './Services'
 {Messages} = require './Messages'
 {Listeners} = require './Listeners'
 {CRUD} = require './CRUD'
@@ -31,14 +31,14 @@ exports.Server = class Server
 
 	###
 	@param httpServer Int
-	@param redisDB Int
 	@param controllerResolver Function[String,Map[String,Any]]
 	@param acl ACL
+	@param redisDB Int
 	@param redisHost String
 	@param redisPort Int
 	@param circuitChannel String
 	###
-	constructor : (@httpServer, @redisDB, @controllerResolver = (()-> null) , @acl = ACL.AllowAll, @redisHost = "127.0.0.1", @redisPort = 6379, @circuitChannel = "circuit-channel") ->
+	constructor : (@httpServer, @controllerResolver = (()-> null), @acl = ACL.AllowAll, @redisHost = "127.0.0.1", @redisDB = 10, @redisPort = 6379, @circuitChannel = "circuit-channel") ->
 
 		@listeners = new Listeners()
 
