@@ -1,6 +1,6 @@
 circuits 
 ====
-[![Build Status](https://travis-ci.org/romansky/circuits.png)](https://travis-ci.org/romansky/circuits)
+[![Build Status](https://travis-ci.org/uniformlyrandom/circuits.png)](https://travis-ci.org/uniformlyrandom/circuits)
 
 A simple socket-io framework for client and server communcation around CRUD operations
 
