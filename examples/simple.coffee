@@ -1,7 +1,7 @@
 http = require 'http'
-Server = require('../../').Server
-Operation = require('../../').Messages.Operation
-CRUD = require('../../').CRUD
+Server = require('../').Server
+Operation = require('../').Messages.Operation
+CRUD = require('../').CRUD
 sioc = require 'socket.io-client'
 
 testPort = 8001
